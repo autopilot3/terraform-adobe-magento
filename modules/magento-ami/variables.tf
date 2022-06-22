@@ -21,6 +21,12 @@ variable "ssh_key_pair_name" {
   description = "Generated key-pair name in the AWS console."
 }
 
+variable "ec2_instance_type" { 
+  type = string
+  description = "EC2 Instance Type for building AMI"
+  value = "t3.medium"
+}
+
 ################################
 # Magento Composer Credentials #
 ################################

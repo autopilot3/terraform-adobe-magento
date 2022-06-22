@@ -9,7 +9,7 @@ data "aws_secretsmanager_secret_version" "ssh-key" {
 
 resource "aws_instance" "magento_instance" {
   ami                         = var.base_ami_id
-  instance_type               = "t3.medium"
+  instance_type               = var.ec2_instance_type
   key_name                    = var.ssh_key_pair_name
   subnet_id                   = var.public_subnet_id
   associate_public_ip_address = true
