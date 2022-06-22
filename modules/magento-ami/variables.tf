@@ -40,6 +40,15 @@ variable "mage_composer_password" {
   description = "Magento auth.json password"
 }
 
+##################################
+# Magento Composer Configuration #
+##################################
+variable "mage_composer_release" {
+  type        = string
+  description = "The magento release to install"
+  value       = "magento/project-community-edition"
+}
+
 ###################################
 #  SecurityGroups and Networking  #
 ###################################

@@ -33,6 +33,7 @@ resource "aws_instance" "magento_instance" {
     inline = [
       "sed -i \"s/MAGE_COMPOSER_USERNAME/${var.mage_composer_username}/g\" /tmp/ec2_install/configs/auth.json",
       "sed -i \"s/MAGE_COMPOSER_PASSWORD/${var.mage_composer_password}/g\" /tmp/ec2_install/configs/auth.json",
+      "jq \".release=\\\"${var.mage_composer_release}\\\" </tmp/ec2_install/scripts/magento-composer-config.json  >/tmp/ec2_install/scripts/magento-composer-config.json",
       "chmod +x /tmp/ec2_install/scripts/*.sh",
       "/tmp/ec2_install/scripts/install_stack.sh",
     ]
