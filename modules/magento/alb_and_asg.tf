@@ -320,8 +320,8 @@ resource "aws_autoscaling_group" "varnish" {
 ##
 
 # Magento cfg
-data "template_file" "magento_userdata" {
-  template = <<EOF
+locals { 
+  magento_userdata = <<EOF
 #!/bin/bash
 sleep $[ ( $RANDOM % 10 )  + 1 ]s
 sudo -u admin crontab -r
@@ -357,7 +357,7 @@ resource "aws_launch_template" "magento_launch_template" {
     }
   }
 
-  user_data = "${base64encode(data.template_file.magento_userdata.rendered)}"
+  user_data = base64encode(local.magento_userdata)
 
   lifecycle {
     create_before_destroy = true
@@ -374,8 +374,8 @@ resource "aws_autoscaling_attachment" "asg_attachment_magento_alb" {
 }
 
 # Varnish cfg
-data "template_file" "varnish_userdata" {
-  template = <<EOF
+locals { 
+  varnish_userdata = <<EOF
 #!/bin/bash
 sudo -u admin crontab -r
 sed -i "s/DNS_RESOLVER/${cidrhost(var.vpc_cidr, "2")}/g" /etc/nginx/conf.d/varnish.conf
@@ -411,7 +411,7 @@ resource "aws_launch_template" "varnish_launch_template" {
     }
   }
 
-  user_data = "${base64encode(data.template_file.varnish_userdata.rendered)}"
+  user_data = base64encode(local.varnish_userdata.rendered)
 
   lifecycle {
     create_before_destroy = true
