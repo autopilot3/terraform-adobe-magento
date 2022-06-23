@@ -73,5 +73,3 @@ resource "aws_ssm_parameter" "smtp_pass" {
     Terraform = true
   }
 }
-
-
