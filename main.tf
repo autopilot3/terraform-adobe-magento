@@ -110,6 +110,7 @@ module "services" {
 # Create Magento AMI
 module "magento-ami" {
   source                 = "./modules/magento-ami"
+  ssm_path_prefix = var.ssm_path_prefix
   base_ami_id            = data.aws_ami.selected.id
   ssh_key_name           = var.ssh_key_name
   ssh_username           = var.ssh_username
@@ -149,6 +150,7 @@ module "magento" {
   source = "./modules/magento"
   # Common
   project           = var.project
+  ssm_path_prefix = var.ssm_path_prefix
   ssh_key_name      = var.ssh_key_name
   ssh_username      = var.ssh_username
   ssh_key_pair_name = var.ssh_key_pair_name
