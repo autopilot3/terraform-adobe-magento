@@ -4,9 +4,10 @@ terraform {
 
 # Create the basis for base module
 module "account" {
-  source      = "./modules/account"
-  project     = var.project
-  domain_name = var.domain_name
+  source          = "./modules/account"
+  project         = var.project
+  ssm_path_prefix = var.ssm_path_prefix
+  domain_name     = var.domain_name
 }
 
 # Generate DB and RabbitMQ passwords
@@ -14,6 +15,7 @@ module "account" {
 module "ssm" {
   source                    = "./modules/ssm"
   project                   = var.project
+  ssm_path_prefix           = var.ssm_path_prefix
   magento_admin_firstname   = var.magento_admin_firstname
   magento_admin_lastname    = var.magento_admin_lastname
   magento_admin_email       = var.magento_admin_email
@@ -68,9 +70,10 @@ module "acm" {
 module "services" {
   source = "./modules/services"
   # Common
-  az1     = var.az1
-  az2     = var.az2
-  project = var.project
+  az1             = var.az1
+  az2             = var.az2
+  project         = var.project
+  ssm_path_prefix = var.ssm_path_prefix
 
   # Services
   skip_rds_snapshot_on_destroy            = var.skip_rds_snapshot_on_destroy

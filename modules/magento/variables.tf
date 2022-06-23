@@ -14,6 +14,11 @@ variable "project" {
   type        = string
 }
 
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
+}
+
 variable "cert_arn" {
   type = string
 }

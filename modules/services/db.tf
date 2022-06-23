@@ -56,7 +56,7 @@ resource "aws_db_instance" "magento_db" {
 }
 
 resource "aws_ssm_parameter" "magento_database_password" {
-  name  = "/magento_database_password"
+  name  = "${var.ssm_path_prefix}/magento_database_password"
   type  = "SecureString"
   value = var.magento_database_password
   tags = {

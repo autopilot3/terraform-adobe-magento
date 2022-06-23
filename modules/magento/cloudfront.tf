@@ -52,7 +52,7 @@ resource "aws_cloudfront_distribution" "alb_distribution" {
 }
 
 resource "aws_ssm_parameter" "cloudfront_domain" {
-  name  = "/cloudfront_domain"
+  name  = "${var.ssm_path_prefix}/cloudfront_domain"
   type  = "String"
   value = aws_cloudfront_distribution.alb_distribution.domain_name
   tags = {

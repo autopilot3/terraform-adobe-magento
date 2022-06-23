@@ -48,7 +48,7 @@ POLICY
 
 
 resource "aws_ssm_parameter" "magento_files_s3" {
-  name  = "/magento_files_s3"
+  name  = "${var.ssm_path_prefix}/magento_files_s3"
   type  = "String"
   value = aws_s3_bucket.magento_files.id
   tags = {

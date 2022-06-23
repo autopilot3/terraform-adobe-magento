@@ -428,7 +428,7 @@ resource "aws_autoscaling_attachment" "asg_attachment_varnish_alb" {
 }
 
 resource "aws_ssm_parameter" "magento_autoscale_name" {
-  name  = "/magento_autoscale_name"
+  name  = "${var.ssm_path_prefix}/magento_autoscale_name"
   type  = "String"
   value = "${aws_launch_template.magento_launch_template.name}"
   tags = {

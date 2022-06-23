@@ -21,10 +21,15 @@ variable "ssh_key_pair_name" {
   description = "Generated key-pair name in the AWS console."
 }
 
-variable "ec2_instance_type" { 
-  type = string
+variable "ec2_instance_type" {
+  type        = string
   description = "EC2 Instance Type for building AMI"
-  value = "t3.medium"
+  default       = "t3.medium"
+}
+
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
 }
 
 ################################
@@ -46,7 +51,7 @@ variable "mage_composer_password" {
 variable "mage_composer_release" {
   type        = string
   description = "The magento release to install"
-  value       = "magento/project-community-edition"
+  default       = "magento/project-community-edition"
 }
 
 ###################################

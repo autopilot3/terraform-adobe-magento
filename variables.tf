@@ -7,6 +7,12 @@ variable "project" {
   description = "Name of the project."
 }
 
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
+  default     = "/"
+}
+
 variable "domain_name" {
   type        = string
   description = "Add domain name for the project."

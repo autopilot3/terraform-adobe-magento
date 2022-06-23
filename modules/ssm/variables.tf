@@ -3,6 +3,11 @@ variable "project" {
   type        = string
 }
 
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
+}
+
 variable "magento_admin_email" {
   description = "Email address for Magento admin."
   type        = string

@@ -21,6 +21,11 @@ variable "project" {
   type        = string
 }
 
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
+}
+
 #variable "route53_internal_zone_id" {
 #  description = "Route53 internal zone's ID"
 #  type = string
