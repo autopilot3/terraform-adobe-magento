@@ -1,6 +1,16 @@
 #################
 # Common        #
 #################
+variable "project" {
+  description = "Project identifier, used in e.g. S3 bucket naming"
+  type        = string
+}
+
+variable "ssm_path_prefix" {
+  type        = string
+  description = "SSM Path Prefix"
+}
+
 variable "base_ami_id" {
   type        = string
   description = "Base AMI for EC2 instances."

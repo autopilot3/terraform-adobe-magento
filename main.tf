@@ -125,6 +125,7 @@ module "services" {
 # Create Magento AMI
 module "magento-ami" {
   source                 = "./modules/magento-ami"
+  project = var.project
   ssm_path_prefix        = var.ssm_path_prefix
   base_ami_id            = data.aws_ami.selected.id
   ssh_private_key        = var.ssh_private_key
@@ -147,6 +148,8 @@ module "magento-ami" {
 # Create Varnish AMI
 module "varnish-ami" {
   source               = "./modules/varnish-ami"
+  project = var.project
+  ssm_path_prefix        = var.ssm_path_prefix
   base_ami_id          = data.aws_ami.selected.id
   ssh_private_key      = var.ssh_private_key
   ssh_username         = var.ssh_username

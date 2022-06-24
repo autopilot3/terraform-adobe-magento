@@ -46,7 +46,7 @@ resource "aws_instance" "magento_instance" {
 
 
   tags = {
-    Name        = "magento-ami-instance"
+    Name        = "${var.project}-magento-ami-instance"
     Description = "EC2 for creating the Magento AMI"
     Terraform   = true
   }

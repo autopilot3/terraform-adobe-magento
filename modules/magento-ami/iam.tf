@@ -5,7 +5,7 @@
 # Allow Magento hosts to fetch EC2 tags
 
 resource "aws_iam_role" "magento_ami_host_role" {
-  name               = "MagentoAMIHostRole"
+  name               = "${var.project}-MagentoAMIHostRole"
   assume_role_policy = file("${path.module}/iam_policies/magento-ami-host-role.json")
 }
 

@@ -26,6 +26,11 @@ variable "ec2_instance_type" {
   description = "EC2 Instance Type for building AMI"
 }
 
+variable "project" {
+  description = "Project identifier, used in e.g. S3 bucket naming"
+  type        = string
+}
+
 variable "ssm_path_prefix" {
   type        = string
   description = "SSM Path Prefix"

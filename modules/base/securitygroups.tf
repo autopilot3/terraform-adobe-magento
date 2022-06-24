@@ -206,7 +206,7 @@ resource "aws_security_group" "ec2_amibuild" {
   }
 }
 resource "aws_security_group_rule" "ec2_amibuild_in_ssh" {
-  security_group_id = aws_security_group.efs.id
+  security_group_id = aws_security_group.ec2_amibuild.id
 
   type      = "ingress"
   from_port = 22
@@ -216,7 +216,7 @@ resource "aws_security_group_rule" "ec2_amibuild_in_ssh" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 resource "aws_security_group_rule" "ec2_amibuild_out_world" {
-  security_group_id = aws_security_group.efs.id
+  security_group_id = aws_security_group.ec2_amibuild.id
 
   type        = "egress"
   from_port   = 0
@@ -224,7 +224,6 @@ resource "aws_security_group_rule" "ec2_amibuild_out_world" {
   protocol    = "-1"
   cidr_blocks = ["0.0.0.0/0"]
 }
-
 
 resource "aws_security_group" "redis" {
   name        = "${var.project}-redis"
@@ -318,7 +317,7 @@ resource "aws_security_group_rule" "awsmq_out_self" {
 }
 
 resource "aws_security_group" "rds" {
-  name        = "${var.project}-xxx"
+  name        = "${var.project}-rds"
   description = "rds"
   vpc_id      = var.vpc_id
 
@@ -347,7 +346,7 @@ resource "aws_security_group" "elasticsearch" {
   vpc_id      = var.vpc_id
 
   tags = {
-    Name = "${var.project}-xxx"
+    Name = "${var.project}-elasticsearch"
   }
 
   lifecycle {

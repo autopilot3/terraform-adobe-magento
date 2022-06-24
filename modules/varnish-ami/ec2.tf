@@ -42,7 +42,7 @@ resource "aws_instance" "varnish_instance" {
   }
 
   tags = {
-    Name = "varnish-ami-instance"
+    Name = "${var.project}-varnish-ami-instance"
   }
 }
 
