@@ -37,6 +37,10 @@ variable "ec2_instance_type" {
   description = "EC2 Instance Type for building AMI"
 }
 
+variable "region" {
+  type        = string
+  description = "AWS Region that will be used for deployment. This should match the region that was used when setting up the Terraform Cloud workspace"
+}
 
 ###################################
 #  SecurityGroups and Networking  #

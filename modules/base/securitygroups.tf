@@ -109,7 +109,7 @@ resource "aws_security_group_rule" "alb_magento_in_ec2_varnish_http" {
   to_port   = 80
   protocol  = "TCP"
 
-  source_security_group_id = aws_security_group.alb_varnish.id
+  source_security_group_id = aws_security_group.ec2_varnish.id
 
 }
 resource "aws_security_group_rule" "alb_magento_out_ec2_magento_http" {

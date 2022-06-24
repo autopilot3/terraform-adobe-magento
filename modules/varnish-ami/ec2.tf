@@ -2,6 +2,9 @@ resource "random_shuffle" "varnish-ami-subnet" {
   input        = var.public_subnet_ids
   result_count = 1
 }
+locals {
+  instance_tag_name = "${var.project}-varnish-ami-instance" # used in the destroy script below, ensure unique to this project
+}
 
 resource "aws_instance" "varnish_instance" {
   ami           = var.base_ami_id
@@ -42,7 +45,7 @@ resource "aws_instance" "varnish_instance" {
   }
 
   tags = {
-    Name = "${var.project}-varnish-ami-instance" # used in the destroy script below, ensure unique to this project
+    Name = local.instance_tag_name
   }
 }
 
@@ -68,10 +71,15 @@ resource "null_resource" "destroy_any_running_amis" {
   }
 
   depends_on = [
+    aws_instance.varnish_instance,
     aws_ami_from_instance.varnish_ami
   ]
 
   provisioner "local-exec" {
-    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --filters \"Name=tag:tagkey,Values=${var.project}-varnish-ami-instance\" --output text) "
+    command = "${path.module}/scripts/local/cleanup-instances.sh"
+    environment = {
+      AWS_REGION = var.region
+      INSTANCE_TAG_NAME = local.instance_tag_name
+     }
   }
 }

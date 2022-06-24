@@ -3,7 +3,6 @@ module "magento" {
   source                    = "../"
   region                    = var.region
   azs                       = var.azs
-  profile                   = var.profile
   project                   = var.project
   base_ami_os               = var.base_ami_os
   domain_name               = var.domain_name

@@ -6,6 +6,11 @@ variable "base_ami_id" {
   description = "Base AMI for EC2 instances."
 }
 
+variable "region" {
+  type        = string
+  description = "AWS Region that will be used for deployment. This should match the region that was used when setting up the Terraform Cloud workspace"
+}
+
 variable "ssh_private_key" {
   type        = string
   description = "Admin SSH key name stored in secrets manager."

@@ -3,13 +3,18 @@
 
 import os
 import boto3
+import json
 
 REGION = os.environ.get('REGION')
 
 session = boto3.Session(region_name=REGION)
 ssm = session.client('ssm')
 
-ssm_path_prefix="SSM_PATH_PREFIX"
+ssm_path_prefix="/"
+
+with open('/tmp/ec2_install/scripts/ssm.json') as ssm_file:
+  ssm_config = json.load(ssm_file)
+  ssm_path_prefix = ssm_config['ssm_path_prefix']
 
 try:
   magento_database_host = ssm.get_parameter(Name=f"{ssm_path_prefix}magento_database_host", WithDecryption=True)

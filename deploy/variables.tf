@@ -14,16 +14,6 @@ variable "domain_name" {
   default     = "your-domain-here.com"
 }
 
-####################
-#  AWS Information #
-####################
-
-variable "profile" {
-  type        = string
-  description = "Profile to be used when connecting to AWS, usually stored in ~/.aws/credentials on local computer."
-  default     = "default"
-}
-
 #######################
 # EC2/SSH Information #
 #######################

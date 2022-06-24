@@ -3,6 +3,23 @@ resource "random_shuffle" "magento-ami-subnet" {
   result_count = 1
 }
 
+
+resource "aws_ssm_parameter" "mage_composer_username" {
+  name  = "/${var.project}/mage_composer_username"
+  type  = "SecureString"
+  value = var.mage_composer_username
+}
+
+resource "aws_ssm_parameter" "mage_composer_password" {
+  name  = "/${var.project}/mage_composer_password"
+  type  = "SecureString"
+  value = var.mage_composer_password
+}
+
+locals {
+  instance_tag_name = "${var.project}-magento-ami-instance" # used in the destroy script below, ensure unique to this project
+}
+
 resource "aws_instance" "magento_instance" {
   ami                         = var.base_ami_id
   instance_type               = var.ec2_instance_type
@@ -27,9 +44,7 @@ resource "aws_instance" "magento_instance" {
 
   provisioner "remote-exec" {
     inline = [
-      "sed -i \"s/MAGE_COMPOSER_USERNAME/${var.mage_composer_username}/g\" /tmp/ec2_install/configs/auth.json",
-      "sed -i \"s/MAGE_COMPOSER_PASSWORD/${var.mage_composer_password}/g\" /tmp/ec2_install/configs/auth.json",
-      "sed -i \"s/SSM_PATH_PREFIX/${var.ssm_path_prefix}g\" /tmp/ec2_install/scripts/magento_vars.py",
+      "jq \".ssm_path_prefix=\\\"${var.ssm_path_prefix}\\\" </tmp/ec2_install/scripts/ssm.json  >/tmp/ec2_install/scripts/ssm.json",
       "jq \".release=\\\"${var.mage_composer_release}\\\" </tmp/ec2_install/scripts/magento-composer-config.json  >/tmp/ec2_install/scripts/magento-composer-config.json",
       "chmod +x /tmp/ec2_install/scripts/*.sh",
       "/tmp/ec2_install/scripts/install_stack.sh",
@@ -45,9 +60,8 @@ resource "aws_instance" "magento_instance" {
   }
 
   tags = {
-    Name        = "${var.project}-magento-ami-instance" # used in the destroy script below, ensure unique to this project
-    Description = "EC2 for creating the Magento AMI"
-      }
+    Name = local.instance_tag_name
+  }
 }
 
 resource "random_pet" "ami" {
@@ -56,7 +70,6 @@ resource "random_pet" "ami" {
     ami_id = aws_instance.magento_instance.id
   }
 }
-
 
 resource "aws_ami_from_instance" "magento_ami" {
   name               = "magento-ami-${random_pet.ami.id}"
@@ -77,6 +90,10 @@ resource "null_resource" "destroy_any_running_amis" {
   ]
 
   provisioner "local-exec" {
-    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --filters \"Name=tag:tagkey,Values=${var.project}-magento-ami-instance\" --output text) "
+    command = "${path.module}/scripts/local/cleanup-instances.sh"
+    environment = {
+      AWS_REGION = var.region
+      INSTANCE_TAG_NAME = local.instance_tag_name
+     }
   }
 }

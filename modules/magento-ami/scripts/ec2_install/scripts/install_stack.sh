@@ -13,7 +13,7 @@ fi
 grep -i amazon /etc/os-release
 if [ $? -eq 0 ]; then
   echo "Wait for cloud-init to complete"
-  cloud-init status --wait
+  sudo cloud-init status --wait
   echo "Cloud init completed"
   $BASEDIR/scripts/install_base_amzn.sh
   $BASEDIR/scripts/install_nginx_amzn.sh "$BASEDIR"
@@ -25,7 +25,9 @@ echo "magento ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/91-magento
 sudo pip3 install boto3
 sudo pip3 install --upgrade awscli
 
-$BASEDIR/scripts/install_composer.sh 
+$BASEDIR/scripts/install_mage_credentials.py
+
+$BASEDIR/scripts/install_composer.sh
 
 sudo $BASEDIR/scripts/install_postfix.sh
 
