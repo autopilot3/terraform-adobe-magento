@@ -11,6 +11,9 @@ fi
 
 grep -i amazon /etc/os-release
 if [ $? -eq 0 ]; then
+  echo "Wait for cloud-init to complete"
+  cloud-init status --wait
+  echo "Cloud init completed"
   $BASEDIR/scripts/install_base_amzn.sh
   $BASEDIR/scripts/install_nginx_amzn.sh "$BASEDIR"
   $BASEDIR/scripts/install_varnish_amzn.sh "$BASEDIR"
