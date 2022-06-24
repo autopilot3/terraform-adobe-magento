@@ -6,7 +6,7 @@ variable "base_ami_id" {
   description = "Base AMI for EC2 instances."
 }
 
-variable "ssh_key_name" {
+variable "ssh_private_key" {
   type        = string
   description = "Admin SSH key name stored in secrets manager."
 }

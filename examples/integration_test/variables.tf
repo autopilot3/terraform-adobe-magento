@@ -23,7 +23,7 @@ variable "profile" {
   type = string
 }
 
-variable "ssh_key_name" {
+variable "ssh_private_key" {
   type        = string
   description = "Name of the SSH-key stored in Secrets Manager"
   default     = "ssh-key-admin"

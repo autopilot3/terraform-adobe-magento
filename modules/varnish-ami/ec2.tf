@@ -1,11 +1,3 @@
-data "aws_secretsmanager_secret" "ssh-key" {
-  name = var.ssh_key_name
-}
-
-data "aws_secretsmanager_secret_version" "ssh-key" {
-  secret_id = data.aws_secretsmanager_secret.ssh-key.id
-}
-
 resource "random_shuffle" "varnish-ami-subnet" {
   input        = var.public_subnet_ids
   result_count = 1
@@ -30,7 +22,7 @@ resource "aws_instance" "varnish_instance" {
       type        = "ssh"
       host        = self.public_ip
       user        = var.ssh_username
-      private_key = data.aws_secretsmanager_secret_version.ssh-key.secret_string
+      private_key = var.ssh_private_key
     }
   }
 
@@ -44,7 +36,7 @@ resource "aws_instance" "varnish_instance" {
       type        = "ssh"
       host        = self.public_ip
       user        = var.ssh_username
-      private_key = data.aws_secretsmanager_secret_version.ssh-key.secret_string
+      private_key = var.ssh_private_key
     }
 
   }
@@ -60,7 +52,6 @@ resource "random_pet" "ami" {
     ami_id = aws_instance.varnish_instance.id
   }
 }
-
 
 resource "aws_ami_from_instance" "varnish_ami" {
   name               = "varnish-ami-${random_pet.ami.id}"

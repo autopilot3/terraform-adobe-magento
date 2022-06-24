@@ -7,7 +7,7 @@ module "magento" {
   project                   = var.project
   base_ami_os               = var.base_ami_os
   domain_name               = var.domain_name
-  ssh_key_name              = var.ssh_key_name
+  ssh_private_key           = var.ssh_private_key
   ssh_key_pair_name         = var.ssh_key_pair_name
   ssh_username              = var.ssh_username
   mage_composer_username    = var.mage_composer_username

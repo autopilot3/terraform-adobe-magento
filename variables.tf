@@ -24,8 +24,9 @@ variable "route53_zone_id" {
   description = "Route53 Zone ID for the above domain"
 }
 
-variable "ssh_key_name" {
-  type = string
+variable "ssh_private_key" {
+  type      = string
+  sensitive = true
 }
 
 variable "ssh_username" {

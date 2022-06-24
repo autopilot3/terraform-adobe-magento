@@ -1,11 +1,3 @@
-data "aws_secretsmanager_secret" "ssh-key" {
-  name = var.ssh_key_name
-}
-
-data "aws_secretsmanager_secret_version" "ssh-key" {
-  secret_id = data.aws_secretsmanager_secret.ssh-key.id
-}
-
 resource "random_shuffle" "magento-ami-subnet" {
   input        = var.public_subnet_ids
   result_count = 1
@@ -29,7 +21,7 @@ resource "aws_instance" "magento_instance" {
       type        = "ssh"
       host        = self.public_ip
       user        = var.ssh_username
-      private_key = data.aws_secretsmanager_secret_version.ssh-key.secret_string
+      private_key = var.ssh_private_key
     }
   }
 
@@ -37,7 +29,7 @@ resource "aws_instance" "magento_instance" {
     inline = [
       "sed -i \"s/MAGE_COMPOSER_USERNAME/${var.mage_composer_username}/g\" /tmp/ec2_install/configs/auth.json",
       "sed -i \"s/MAGE_COMPOSER_PASSWORD/${var.mage_composer_password}/g\" /tmp/ec2_install/configs/auth.json",
-      "sed -i \"s/SSM_PATH_PREFIX/${var.ssm_path_prefix}/g\" /tmp/ec2_install/scripts/magento_vars.py",
+      "sed -i \"s/SSM_PATH_PREFIX/${var.ssm_path_prefix}g\" /tmp/ec2_install/scripts/magento_vars.py",
       "jq \".release=\\\"${var.mage_composer_release}\\\" </tmp/ec2_install/scripts/magento-composer-config.json  >/tmp/ec2_install/scripts/magento-composer-config.json",
       "chmod +x /tmp/ec2_install/scripts/*.sh",
       "/tmp/ec2_install/scripts/install_stack.sh",
@@ -47,7 +39,7 @@ resource "aws_instance" "magento_instance" {
       type        = "ssh"
       host        = self.public_ip
       user        = var.ssh_username
-      private_key = data.aws_secretsmanager_secret_version.ssh-key.secret_string
+      private_key = var.ssh_private_key
     }
 
   }

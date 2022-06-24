@@ -125,7 +125,7 @@ module "magento-ami" {
   source                 = "./modules/magento-ami"
   ssm_path_prefix        = var.ssm_path_prefix
   base_ami_id            = data.aws_ami.selected.id
-  ssh_key_name           = var.ssh_key_name
+  ssh_private_key        = var.ssh_private_key
   ssh_username           = var.ssh_username
   mage_composer_username = var.mage_composer_username
   mage_composer_password = var.mage_composer_password
@@ -146,7 +146,7 @@ module "magento-ami" {
 module "varnish-ami" {
   source               = "./modules/varnish-ami"
   base_ami_id          = data.aws_ami.selected.id
-  ssh_key_name         = var.ssh_key_name
+  ssh_private_key      = var.ssh_private_key
   ssh_username         = var.ssh_username
   vpc_id               = var.vpc_id
   public_subnet_ids    = var.vpc_public_subnet_ids
@@ -167,7 +167,7 @@ module "magento" {
   # Common
   project           = var.project
   ssm_path_prefix   = var.ssm_path_prefix
-  ssh_key_name      = var.ssh_key_name
+  ssh_private_key   = var.ssh_private_key
   ssh_username      = var.ssh_username
   ssh_key_pair_name = var.ssh_key_pair_name
   # Network

@@ -34,7 +34,7 @@ variable "route53_zone_id" {
   description = "Route53 Zone ID for the above domain"
 }
 
-variable "ssh_key_name" {
+variable "ssh_private_key" {
   type        = string
   description = "Admin SSH key name stored in secrets manager."
 }

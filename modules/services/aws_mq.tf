@@ -28,7 +28,7 @@ resource "aws_mq_broker" "rabbit_mq" {
 }
 
 resource "aws_ssm_parameter" "rabbitmq_password" {
-  name  = "${var.ssm_path_prefix}/rabbitmq_password"
+  name  = "${var.ssm_path_prefix}rabbitmq_password"
   type  = "SecureString"
   value = random_string.mq_password.result
   tags = {

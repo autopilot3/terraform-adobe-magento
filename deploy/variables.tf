@@ -27,7 +27,7 @@ variable "profile" {
 #######################
 # EC2/SSH Information #
 #######################
-variable "ssh_key_name" {
+variable "ssh_private_key" {
   type        = string
   description = "Name of the SSH-key created for deployement and stored in Secrets Manager"
   default     = "ssh-key-admin"
