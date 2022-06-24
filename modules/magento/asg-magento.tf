@@ -80,7 +80,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudwatch_magento_cpu_low" {
 
 resource "aws_autoscaling_attachment" "asg_attachment_magento_alb" {
   autoscaling_group_name = aws_autoscaling_group.magento.id
-  lb_target_group_arn    = aws_alb_target_group.alb_tg_internal.arn
+  lb_target_group_arn    = aws_alb_target_group.magento_http.arn
 }
 
 resource "aws_ssm_parameter" "magento_autoscale_name" {

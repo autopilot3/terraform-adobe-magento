@@ -4,8 +4,8 @@ locals {
   varnish_userdata = <<EOF
 #!/bin/bash
 sudo -u admin crontab -r
-sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_internal.dns_name}/g" /etc/nginx/conf.d/varnish.conf
-sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_internal.dns_name}/g" /etc/varnish/backends.vcl
+sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_magento.dns_name}/g" /etc/nginx/conf.d/varnish.conf
+sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_magento.dns_name}/g" /etc/varnish/backends.vcl
 systemctl start nginx
 systemctl restart varnish
   EOF
@@ -42,5 +42,5 @@ resource "aws_launch_template" "varnish_launch_template" {
 
 resource "aws_autoscaling_attachment" "asg_attachment_varnish_alb" {
   autoscaling_group_name = aws_autoscaling_group.varnish.id
-  lb_target_group_arn    = aws_alb_target_group.alb_tg_external.arn
+  lb_target_group_arn    = aws_alb_target_group.varnish_http.arn
 }

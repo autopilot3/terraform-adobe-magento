@@ -39,8 +39,8 @@ output "magento_files_s3" {
   value = module.magento.magento_files_s3
 }
 
-output "alb_external_dns_name" {
-  value = module.magento.alb_external_dns_name
+output "alb_varnish_dns_name" {
+  value = module.magento.alb_varnish_dns_name
 }
 
 output "user_instructions" {

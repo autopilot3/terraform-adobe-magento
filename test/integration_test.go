@@ -1,12 +1,13 @@
 package test
 
 import (
-	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
 	"time"
+
+	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -28,7 +29,7 @@ var intTestCases = []testCase{
 func validateNotEmptyOutputs(t *testing.T, tfOpts *terraform.Options) {
 	testOutputs := []string{
 		"magento_rabbitmq_host", "magento_frontend_url", "magento_admin_url", "magento_admin_email",
-		"magento_database_host", "magento_elasticsearch_host", "alb_external_dns_name",
+		"magento_database_host", "magento_elasticsearch_host", "alb_varnish_dns_name",
 		"magento_cache_host", "magento_session_host", "magento_files_s3",
 	}
 	for _, name := range testOutputs {

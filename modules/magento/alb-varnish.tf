@@ -1,13 +1,5 @@
-# ------------------
-# | Load balancers |
-# ------------------
-
-##
-# EXTERNAL Load Balancer
-##
-
-resource "aws_alb" "alb_external" {
-  name            = "${var.project}-alb-external"
+resource "aws_alb" "alb_varnish" {
+  name           = "${var.project}-varnish"
   internal        = false
   security_groups = [var.sg_alb_varnish_id]
   subnets         = var.public_subnet_ids
@@ -23,7 +15,7 @@ resource "aws_alb" "alb_external" {
   }
 
   tags = {
-    Name      = "${var.project}-alb-external"
+    Name      = "${var.project}-alb-varnish-public"
     Role      = "Load balancer for incoming external HTTP traffic"
     Terraform = true
   }
@@ -33,8 +25,8 @@ resource "aws_alb" "alb_external" {
   }
 }
 
-resource "aws_alb_target_group" "alb_tg_external" {
-  name     = "${var.project}-alb-tg-external"
+resource "aws_alb_target_group" "varnish_http" {
+  name     = "${var.project}-varnish-http"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -45,44 +37,49 @@ resource "aws_alb_target_group" "alb_tg_external" {
   }
 
   tags = {
-    Name      = "${var.project}-alb-external-target-group"
+    Name      = "${var.project}-varnish-http"
     Role      = "External target group"
     Terraform = true
   }
 }
 
-resource "aws_alb_listener" "alb_listener_http" {
-  load_balancer_arn = aws_alb.alb_external.arn
+resource "aws_alb_listener" "varnish_http" {
+  load_balancer_arn = aws_alb.alb_varnish.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
-    target_group_arn = aws_alb_target_group.alb_tg_external.arn
-    type             = "forward"
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 
   tags = {
-    Name      = "${var.project}-alb-http-listener"
+    Name      = "${var.project}-varnish-http"
     Role      = "ALB HTTP listener"
     Terraform = true
   }
 }
 
 # HTTPS listener
-resource "aws_alb_listener" "alb_listener_https" {
-  load_balancer_arn = aws_alb.alb_external.arn
+resource "aws_alb_listener" "varnish_https" {
+  load_balancer_arn = aws_alb.alb_varnish.arn
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = var.alb_cert_arn
 
   default_action {
-    target_group_arn = aws_alb_target_group.alb_tg_external.arn
+    target_group_arn = aws_alb_target_group.varnish_http.arn
     type             = "forward"
   }
 
   tags = {
-    Name      = "${var.project}-alb-https-listener"
+    Name      = "${var.project}-varnish-https"
     Role      = "ALB HTTPS listener"
     Terraform = true
   }
