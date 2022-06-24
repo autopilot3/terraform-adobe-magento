@@ -42,7 +42,7 @@ resource "aws_instance" "varnish_instance" {
   }
 
   tags = {
-    Name = "${var.project}-varnish-ami-instance"
+    Name = "${var.project}-varnish-ami-instance" # used in the destroy script below, ensure unique to this project
   }
 }
 
@@ -59,4 +59,19 @@ resource "aws_ami_from_instance" "varnish_ami" {
   depends_on = [
     aws_instance.varnish_instance
   ]
+}
+
+# This process can leave dangling resources, always run this destroy command every apply
+resource "null_resource" "destroy_any_running_amis" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  depends_on = [
+    aws_ami_from_instance.varnish_ami
+  ]
+
+  provisioner "local-exec" {
+    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --filters \"Name=tag:tagkey,Values=${var.project}-varnish-ami-instance\" --output text) "
+  }
 }

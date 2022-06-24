@@ -44,12 +44,10 @@ resource "aws_instance" "magento_instance" {
 
   }
 
-
   tags = {
-    Name        = "${var.project}-magento-ami-instance"
+    Name        = "${var.project}-magento-ami-instance" # used in the destroy script below, ensure unique to this project
     Description = "EC2 for creating the Magento AMI"
-    Terraform   = true
-  }
+      }
 }
 
 resource "random_pet" "ami" {
@@ -66,4 +64,19 @@ resource "aws_ami_from_instance" "magento_ami" {
   depends_on = [
     aws_instance.magento_instance
   ]
+}
+
+# This process can leave dangling resources, always run this destroy command every apply
+resource "null_resource" "destroy_any_running_amis" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  depends_on = [
+    aws_ami_from_instance.magento_ami
+  ]
+
+  provisioner "local-exec" {
+    command = "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --filters \"Name=tag:tagkey,Values=${var.project}-magento-ami-instance\" --output text) "
+  }
 }
