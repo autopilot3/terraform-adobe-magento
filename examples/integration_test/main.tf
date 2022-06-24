@@ -11,9 +11,7 @@ terraform {
 module "magento" {
   source                    = "../../"
   region                    = var.region
-  create_vpc                = var.create_vpc
-  az1                       = var.az1
-  az2                       = var.az2
+  azs                       = var.azs
   profile                   = var.profile
   project                   = var.project
   base_ami_os               = var.base_ami_os
@@ -29,7 +27,7 @@ module "magento" {
   magento_admin_password    = var.magento_admin_password
   magento_admin_email       = var.magento_admin_email
   magento_database_password = var.magento_database_password
-  cert                      = var.cert
+  cert                      = var.cert_arn
   elasticsearch_domain      = var.elasticsearch_domain
   rabbitmq_username         = var.rabbitmq_username
   management_addresses      = var.management_addresses
@@ -37,13 +35,9 @@ module "magento" {
   vpc_cidr = var.vpc_cidr
   ###
   # Existing VPC
-  # Only applied if variable create_vpc is set to false
   ###
   vpc_id                 = var.vpc_id
-  vpc_public_subnet_id   = var.vpc_public_subnet_id
-  vpc_public2_subnet_id  = var.vpc_public2_subnet_id
-  vpc_private_subnet_id  = var.vpc_private_subnet_id
-  vpc_private2_subnet_id = var.vpc_private2_subnet_id
-  vpc_rds_subnet_id      = var.vpc_rds_subnet_id
-  vpc_rds_subnet2_id     = var.vpc_rds_subnet2_id
+  vpc_public_subnet_ids  = var.vpc_public_subnet_ids
+  vpc_private_subnet_ids = var.vpc_private_subnet_ids
+  vpc_rds_subnet_ids     = var.vpc_rds_subnet_ids
 }

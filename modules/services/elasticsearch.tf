@@ -10,22 +10,15 @@ resource "aws_elasticsearch_domain" "es" {
   elasticsearch_version = var.es_version
 
   cluster_config {
-    instance_count         = 2
+    instance_count         = var.es_instance_count
     instance_type          = var.es_instance_type
-    zone_awareness_enabled = true
+    zone_awareness_enabled = var.es_instance_count == 1 ? false : true
   }
 
   vpc_options {
-    subnet_ids = [
-      var.private_subnet_id,
-      var.private2_subnet_id,
-    ]
+    subnet_ids = var.private_subnet_ids
 
-    security_group_ids = [
-      var.sg_bastion_ssh_in_id,
-      var.sg_allow_all_out_id,
-      aws_security_group.internal_es_http_in.id
-    ]
+    security_group_ids = [var.sg_elasticsearch_id]
   }
 
   encrypt_at_rest {
@@ -63,11 +56,4 @@ CONFIG
   }
 
   depends_on = [aws_iam_service_linked_role.es]
-
-  lifecycle {
-    ignore_changes = [
-      tags,
-      tags_all
-    ]
-  }
 }

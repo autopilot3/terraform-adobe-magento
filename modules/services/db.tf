@@ -3,8 +3,8 @@
 # ------------------
 
 resource "aws_db_subnet_group" "magento_rds" {
-  name       = "magento-rds"
-  subnet_ids = [var.rds_subnet_id, var.rds_subnet2_id]
+  name       = "${var.project}-magento-rds"
+  subnet_ids = var.rds_subnet_ids
   tags = {
     Name      = "Subnet group for RDS"
     Terraform = true
@@ -20,21 +20,21 @@ resource "random_string" "db_suffix" {
 resource "aws_db_instance" "magento_db" {
   allocated_storage            = var.magento_db_allocated_storage
   backup_retention_period      = var.magento_db_backup_retention_period
-  db_subnet_group_name         = "magento-rds"
-  identifier                   = "magento-db"
-  engine                       = "mysql"
-  engine_version               = "8.0"
+  db_subnet_group_name         = aws_db_subnet_group.magento_rds.name
+  identifier                   = "${var.project}-magento-db"
+  engine                       = var.rds_engine
+  engine_version               = var.rds_engine_version
   allow_major_version_upgrade  = false
   auto_minor_version_upgrade   = true
-  instance_class               = var.ec2_instance_type_rds
+  instance_class               = var.rds_instance_type
   multi_az                     = true
   port                         = 3306
-  name                         = var.magento_db_name
+  db_name                      = var.magento_db_name
   username                     = var.magento_db_username
   password                     = var.magento_database_password
-  vpc_security_group_ids       = [aws_security_group.allow_rds_in.id]
+  vpc_security_group_ids       = [var.sg_rds_id]
   skip_final_snapshot          = var.skip_rds_snapshot_on_destroy
-  final_snapshot_identifier    = "magento-final-snapshot-${random_string.db_suffix.result}"
+  final_snapshot_identifier    = "${var.project}-magento-final-snapshot-${random_string.db_suffix.result}"
   depends_on                   = [aws_db_subnet_group.magento_rds]
   performance_insights_enabled = var.magento_db_performance_insights_enabled
   storage_encrypted            = true
@@ -44,14 +44,8 @@ resource "aws_db_instance" "magento_db" {
   }
 
   tags = {
-    Name      = "magento-rds-database"
+    Name      = "${var.project}-magento-rds-database"
     Terraform = true
-  }
-
-  lifecycle {
-    ignore_changes = [
-      latest_restorable_time
-    ]
   }
 }
 

@@ -19,8 +19,19 @@ variable "ssm_path_prefix" {
   description = "SSM Path Prefix"
 }
 
-variable "cert_arn" {
-  type = string
+variable "domain_name" {
+  type        = string
+  description = "Add domain name for the project."
+}
+
+variable "alb_cert_arn" {
+  type        = string
+  description = "ACM Certificate ARN for the public facing ALB"
+}
+
+variable "route53_zone_id" {
+  type        = string
+  description = "Route53 Zone ID for the above domain"
 }
 
 variable "ssh_key_name" {
@@ -49,52 +60,34 @@ variable "vpc_cidr" {
   type = string
 }
 
-variable "public_subnet_id" {
-  type = string
+variable "private_subnet_ids" {
+  type = list(string)
 }
 
-variable "private_subnet_id" {
-  type = string
+variable "public_subnet_ids" {
+  type = list(string)
 }
 
-variable "public2_subnet_id" {
-  type = string
-}
-
-variable "private2_subnet_id" {
-  type = string
-}
-
-variable "nat_gateway_ip1" {
-  type = string
-}
-
-variable "nat_gateway_ip2" {
-  type = string
-}
 
 ####################
 #  SecurityGroups  #
 ####################
-variable "sg_bastion_ssh_in_id" {
-  description = "Security group ID for SSH access from bastion host"
-  type        = string
-}
 
-variable "sg_bastion_http_in_id" {
-  description = "Security group ID for HTTP access from bastion host"
-  type        = string
+variable "sg_alb_varnish_id" {
+  type = string
 }
-
-variable "sg_allow_all_out_id" {
-  description = "Security group ID for allowing outbound connections"
-  type        = string
+variable "sg_ec2_varnish_id" {
+  type = string
 }
-
-variable "external_lb_sg_ids" {
-  type = list(string)
+variable "sg_alb_magento_id" {
+  type = string
 }
-
+variable "sg_ec2_magento_id" {
+  type = string
+}
+variable "sg_efs_id" {
+  type = string
+}
 
 ####################
 # LB booleans      #
@@ -102,54 +95,36 @@ variable "external_lb_sg_ids" {
 variable "lb_access_logs_enabled" {
   type        = bool
   description = "Enable load balancer accesslogs to s3 bucket"
-  default     = false
-}
-
-
-####################
-# Cloudfront       #
-####################
-variable "acl_id" {
-  description = "Optional ACL to use in front of Cloudfront distribution"
-  default     = null
 }
 
 ####################################################
 # Magento autoscaling group min/max/desired values #
 ####################################################
 variable "magento_autoscale_min" {
-  default = "1"
 }
 variable "magento_autoscale_max" {
-  default = "8"
 }
 variable "magento_autoscale_desired" {
-  default = "1"
 }
 
 #############################
 # Magento EC2 Instance Size #
 #############################
 variable "ec2_instance_type_magento" {
-  default = "m6i.large"
 }
 
 ####################################################
 # Varnish autoscaling group min/max/desired values #
 ####################################################
 variable "varnish_autoscale_min" {
-  default = "1"
 }
 variable "varnish_autoscale_max" {
-  default = "1"
 }
 variable "varnish_autoscale_desired" {
-  default = "1"
 }
 
 #############################
 # Varnish EC2 Instance Size #
 #############################
 variable "ec2_instance_type_varnish" {
-  default = "m6i.large"
 }

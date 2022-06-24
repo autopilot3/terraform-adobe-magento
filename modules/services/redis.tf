@@ -3,13 +3,13 @@
 # ------------------------
 
 resource "aws_elasticache_subnet_group" "elasticache" {
-  name        = "elasticache-subnet-group"
+  name        = "${var.project}-elasticache-subnet-group"
   description = "Use the private subnet for ElastiCache instances."
-  subnet_ids  = [var.private_subnet_id, var.private2_subnet_id]
+  subnet_ids  = var.private_subnet_ids
 }
 
 resource "aws_elasticache_parameter_group" "magento_required" {
-  name   = "magento-required"
+  name   = "${var.project}-magento-required"
   family = "redis6.x"
 
   parameter {
@@ -20,54 +20,54 @@ resource "aws_elasticache_parameter_group" "magento_required" {
 
 # Redis instance for backend caching
 resource "aws_elasticache_replication_group" "redis-backend-cache" {
-  automatic_failover_enabled    = true
-  availability_zones            = [var.az1, var.az2]
-  multi_az_enabled              = true
-  engine                        = "redis"
-  engine_version                = var.redis_engine_version
-  replication_group_id          = "redis-backend-cache"
-  replication_group_description = "Redis Replication Group"
-  node_type                     = var.ec2_instance_type_redis_cache
-  number_cache_clusters         = 2
-  parameter_group_name          = aws_elasticache_parameter_group.magento_required.name
-  subnet_group_name             = aws_elasticache_subnet_group.elasticache.name
-  security_group_ids            = [aws_security_group.allow_redis_in.id]
-  port                          = 6379
-  at_rest_encryption_enabled    = true
+  automatic_failover_enabled = true
+  availability_zones         = var.azs
+  multi_az_enabled           = true
+  engine                     = "redis"
+  engine_version             = var.redis_engine_version
+  replication_group_id       = "${var.project}-redis-backend-cache"
+  description                = "${var.project}-Redis Replication Group"
+  node_type                  = var.redis_instance_type_cache
+  num_cache_clusters         = var.redis_clusters_cache
+  parameter_group_name       = aws_elasticache_parameter_group.magento_required.name
+  subnet_group_name          = aws_elasticache_subnet_group.elasticache.name
+  security_group_ids         = [var.sg_redis_id]
+  port                       = 6379
+  at_rest_encryption_enabled = true
 
   lifecycle {
-    ignore_changes = [number_cache_clusters]
+    ignore_changes = [num_cache_clusters]
   }
 
   tags = {
-    Name      = "magento-redis-backend-cache"
+    Name      = "${var.project}-magento-redis-backend-cache"
     Terraform = true
   }
 }
 
 # Redis instance for sessions
 resource "aws_elasticache_replication_group" "redis-sessions" {
-  automatic_failover_enabled    = true
-  availability_zones            = [var.az1, var.az2]
-  multi_az_enabled              = true
-  engine                        = "redis"
-  engine_version                = var.redis_engine_version
-  replication_group_id          = "redis-sessions"
-  replication_group_description = "Redis Replication Group"
-  node_type                     = var.ec2_instance_type_redis_session
-  number_cache_clusters         = 2
-  parameter_group_name          = aws_elasticache_parameter_group.magento_required.name
-  subnet_group_name             = aws_elasticache_subnet_group.elasticache.name
-  security_group_ids            = [aws_security_group.allow_redis_in.id]
-  port                          = 6379
-  at_rest_encryption_enabled    = true
+  automatic_failover_enabled = true
+  availability_zones         = var.azs
+  multi_az_enabled           = true
+  engine                     = "redis"
+  engine_version             = var.redis_engine_version
+  replication_group_id       = "${var.project}-redis-sessions"
+  description                = "${var.project}-Redis Replication Group"
+  node_type                  = var.redis_instance_type_session
+  num_cache_clusters         = var.redis_clusters_session
+  parameter_group_name       = aws_elasticache_parameter_group.magento_required.name
+  subnet_group_name          = aws_elasticache_subnet_group.elasticache.name
+  security_group_ids         = [var.sg_redis_id]
+  port                       = 6379
+  at_rest_encryption_enabled = true
 
   lifecycle {
-    ignore_changes = [number_cache_clusters]
+    ignore_changes = [num_cache_clusters]
   }
 
   tags = {
-    Name      = "magento-redis-sessions"
+    Name      = "${var.project}-magento-redis-sessions"
     Terraform = true
   }
 }

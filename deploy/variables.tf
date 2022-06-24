@@ -56,30 +56,16 @@ variable "base_ami_os" {
 variable "region" {
   type        = string
   description = "AWS Region that will be used for deployment. This should match the region that was used when setting up the Terraform Cloud workspace"
-  default     = "us-east-1"
 }
 
-variable "az1" {
-  type        = string
-  description = "Availability Zone 2 used for deployment"
-  default     = "us-east-1a"
-}
-
-variable "az2" {
-  type        = string
-  description = "Availability Zone 2 used for deployment"
-  default     = "us-east-1b"
+variable "azs" {
+  type        = list(string)
+  description = "Availability Zones used for deployment"
 }
 
 ##############
 # Networking #
 ##############
-variable "create_vpc" {
-  type        = bool
-  description = "Create new VPC or use an existing. Valid choices are TRUE or FALSE. If you do not create a new VPC, you will be asked for VPC CIDR, VPC ID, VPC Public Subnet ID, VPC Public2 Subnet ID, VPC Private Subnet ID, VPC Private2 Subnet ID, VPC RDS Subnet ID, VPC RDS Subnet2 ID"
-  default     = true
-}
-
 variable "vpc_cidr" {
   type        = string
   description = "VPC CIDR used for this deployment."
@@ -167,57 +153,23 @@ variable "rabbitmq_username" {
 
 ####################################################
 # Existing VPC                                     #
-# Only set when create_vpc is set to "false" above #
 ####################################################
 variable "vpc_id" {
   type        = string
   description = "VPC ID if deploying into an existing VPC"
   default     = ""
 }
-variable "vpc_public_subnet_id" {
-  type        = string
-  description = "ID of public subnet 1 in existing VPC"
-  default     = ""
+variable "vpc_public_subnet_ids" {
+  type        = list(string)
+  description = "IDs of public subnets in existing VPC"
 }
 
-variable "vpc_public2_subnet_id" {
-  type        = string
-  description = "ID of public subnet 2 in existing VPC"
-  default     = ""
+variable "vpc_private_subnet_ids" {
+  type        = list(string)
+  description = "IDs of private subnets in existing VPC"
 }
 
-variable "vpc_private_subnet_id" {
-  type        = string
-  description = "ID of private subnet 1 in existing VPC"
-  default     = ""
+variable "vpc_rds_subnet_ids" {
+  type        = list(string)
+  description = "IDs of private subnets for RDS in existing VPC"
 }
-
-variable "vpc_private2_subnet_id" {
-  type        = string
-  description = "ID of private subnet 2 in existing VPC"
-  default     = ""
-}
-
-variable "vpc_rds_subnet_id" {
-  type        = string
-  description = "ID of private subnet 1 for RDS in existing VPC"
-  default     = ""
-}
-
-variable "vpc_rds_subnet2_id" {
-  type        = string
-  description = "ID of private subnet 2 for RDS in existing VPC"
-  default     = ""
-}
-
-
-###################
-# AMI Certificate #
-###################
-
-variable "cert" {
-  type        = string
-  description = "ARN of Certificate for AMI"
-  default     = false
-}
-

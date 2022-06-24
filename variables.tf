@@ -19,13 +19,9 @@ variable "domain_name" {
   default     = null
 }
 
-variable "cert" {
-  type    = string
-  default = false
-}
-
-variable "profile" {
-  type = string
+variable "route53_zone_id" {
+  type        = string
+  description = "Route53 Zone ID for the above domain"
 }
 
 variable "ssh_key_name" {
@@ -42,25 +38,43 @@ variable "ssh_key_pair_name" {
 
 variable "magento_admin_firstname" {
   description = "Firstname for Magento admin."
+  type        = string
 }
 
 variable "magento_admin_lastname" {
   description = "Lastname for Magento admin."
+  type        = string
 }
 
 variable "magento_admin_username" {
   description = "Username for Magento admin."
+  type        = string
 }
 variable "magento_admin_password" {
   description = "Password for Magento admin."
+  type        = string
+}
+
+variable "magento_db_username" {
+  description = "RDS username for Magento DB"
+  type        = string
 }
 
 variable "magento_database_password" {
   description = "Password for Magento DB."
+  type        = string
+  sensitive   = true
 }
 
 variable "magento_admin_email" {
   description = "Email address for Magento admin."
+  type        = string
+}
+
+variable "mage_composer_release" {
+  type        = string
+  description = "The magento release to install"
+  default     = "magento/project-community-edition"
 }
 
 ##############
@@ -100,7 +114,7 @@ data "aws_ami" "selected" {
 }
 
 variable "base_ami_ids" {
-  description = "Base AMI for bastion host and Magento EC2 instances. Amazon Linux 2 or Debian 10."
+  description = "Base AMI for Magento EC2 instances. Amazon Linux 2 or Debian 10."
   type        = map(string)
   default = {
     "amazon_linux_2" = "ami-02e136e904f3da870",
@@ -112,6 +126,49 @@ variable "base_ami_os" {
   type = string
 }
 
+
+####################################################
+# Magento autoscaling group min/max/desired values #
+####################################################
+variable "magento_autoscale_min" {
+  default = 1
+}
+variable "magento_autoscale_max" {
+  default = 1
+}
+variable "magento_autoscale_desired" {
+  default = 1
+}
+
+#############################
+# Magento EC2 Instance Size #
+#############################
+variable "ec2_instance_type_magento" {
+  default = "t3a.medium"
+}
+
+
+####################################################
+# Varnish autoscaling group min/max/desired values #
+####################################################
+variable "varnish_autoscale_min" {
+  default = 1
+}
+variable "varnish_autoscale_max" {
+  default = 1
+}
+variable "varnish_autoscale_desired" {
+  default = 1
+}
+
+#############################
+# Varnish EC2 Instance Size #
+#############################
+variable "ec2_instance_type_varnish" {
+  default = "t3a.small"
+}
+
+
 #######
 # AZs #
 #######
@@ -120,24 +177,14 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "az1" {
-  type    = string
-  default = "us-east-1a"
+variable "azs" {
+  type    = list(string)
+  default = ["us-east-1a"]
 }
-
-variable "az2" {
-  type    = string
-  default = "us-east-1b"
-}
-
 
 ##########################################
-#  Networking and External IP addresses  # 
+#  Networking and External IP addresses  #
 ##########################################
-variable "create_vpc" {
-  type = bool
-}
-
 variable "vpc_cidr" {
   type        = string
   description = "VPC CIDR"
@@ -157,6 +204,7 @@ variable "mage_composer_password" {
   type        = string
   description = "Magento auth.json password"
 }
+
 
 ##################
 # Load Balancing #
@@ -190,6 +238,25 @@ variable "magento_db_performance_insights_enabled" {
   default = true
 }
 
+variable "rds_instance_type" {
+  default = "db.r5.2xlarge"
+  type    = string
+}
+
+variable "magento_db_name" {
+  description = "RDS database name for Magento"
+  type        = string
+}
+
+
+variable "rds_engine" {
+  type = string
+}
+
+variable "rds_engine_version" {
+  type = string
+}
+
 ##################
 #  ElasticSearch #
 ##################
@@ -197,6 +264,21 @@ variable "magento_db_performance_insights_enabled" {
 variable "elasticsearch_domain" {
   type        = string
   description = "ElasticSearch domain"
+}
+
+variable "es_version" {
+  default = "7.4"
+  type    = string
+}
+
+variable "es_instance_type" {
+  default = "m5.large.elasticsearch"
+  type    = string
+}
+
+variable "es_instance_count" {
+  type    = number
+  default = 2
 }
 
 ##################
@@ -208,33 +290,61 @@ variable "rabbitmq_username" {
   description = "Username for RabbitMQ"
 }
 
+variable "mq_instance_type" {
+  default = "mq.m5.large"
+}
+
+
+variable "mq_engine_version" {
+  type = string
+}
+
+
+
+##################
+#  Redis      #
+##################
+
+
+
+variable "redis_engine_version" {
+  type    = string
+  default = "6.x"
+}
+
+variable "redis_instance_type_cache" {
+  type    = string
+  default = "cache.m5.large"
+}
+
+variable "redis_clusters_cache" {
+  type    = number
+  default = 2
+}
+
+variable "redis_instance_type_session" {
+  default = "cache.m5.large"
+}
+
+variable "redis_clusters_session" {
+  type    = number
+  default = 2
+}
+
 ################################################
 #  Existing VPC Configurations                 #
-#  Only applied if create_vpc is set to "true" #
 ################################################
 variable "vpc_id" {
   type = string
 }
-variable "vpc_public_subnet_id" {
-  type = string
+variable "vpc_public_subnet_ids" {
+  type = list(string)
 }
 
-variable "vpc_public2_subnet_id" {
-  type = string
+variable "vpc_private_subnet_ids" {
+  type = list(string)
 }
 
-variable "vpc_private_subnet_id" {
-  type = string
-}
-
-variable "vpc_private2_subnet_id" {
-  type = string
-}
-
-variable "vpc_rds_subnet_id" {
-  type = string
-}
-
-variable "vpc_rds_subnet2_id" {
-  type = string
+variable "vpc_rds_subnet_ids" {
+  type = list(string)
 }

@@ -6,14 +6,18 @@ data "aws_secretsmanager_secret_version" "ssh-key" {
   secret_id = data.aws_secretsmanager_secret.ssh-key.id
 }
 
+resource "random_shuffle" "magento-ami-subnet" {
+  input        = var.public_subnet_ids
+  result_count = 1
+}
 
 resource "aws_instance" "magento_instance" {
   ami                         = var.base_ami_id
   instance_type               = var.ec2_instance_type
   key_name                    = var.ssh_key_pair_name
-  subnet_id                   = var.public_subnet_id
+  subnet_id                   = random_shuffle.magento-ami-subnet.result[0]
   associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.management_ssh_in.id, var.sg_allow_all_out_id]
+  vpc_security_group_ids      = [var.sg_ec2_amibuild_id]
   iam_instance_profile        = aws_iam_instance_profile.magento_ami_host_profile.id
 
   provisioner "file" {

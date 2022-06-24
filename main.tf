@@ -24,31 +24,25 @@ module "ssm" {
   magento_database_password = var.magento_database_password
 }
 
-# Run base module which includes Networking and bastion hosts
+# Run base module which includes Networking
 module "base" {
   source = "./modules/base"
 
-  create_vpc           = var.create_vpc
   project              = var.project
   vpc_cidr             = var.vpc_cidr
   management_addresses = var.management_addresses
-  az1                  = var.az1
-  az2                  = var.az2
+  azs                  = var.azs
   base_ami_id          = data.aws_ami.selected.id
   domain_name          = var.domain_name
   ssh_key_pair_name    = var.ssh_key_pair_name
 
   ###
   # Existing VPC
-  # Only applied if variable create_vpc is set to false
   ###
   vpc_id                 = var.vpc_id
-  vpc_public_subnet_id   = var.vpc_public_subnet_id
-  vpc_public2_subnet_id  = var.vpc_public2_subnet_id
-  vpc_private_subnet_id  = var.vpc_private_subnet_id
-  vpc_private2_subnet_id = var.vpc_private2_subnet_id
-  vpc_rds_subnet_id      = var.vpc_rds_subnet_id
-  vpc_rds_subnet2_id     = var.vpc_rds_subnet2_id
+  vpc_public_subnet_ids  = var.vpc_public_subnet_ids
+  vpc_private_subnet_ids = var.vpc_private_subnet_ids
+  vpc_rds_subnet_ids     = var.vpc_rds_subnet_ids
 
   depends_on = [
     module.account
@@ -59,48 +53,67 @@ module "base" {
 module "acm" {
   source          = "./modules/acm"
   domain_name     = var.domain_name
-  route53_zone_id = module.account.route53_zone_id
+  route53_zone_id = var.route53_zone_id
 
   depends_on = [
     module.base
   ]
 }
 
+
 # Create services: RabbitMQ, Redis, CloudFront and RDS
 module "services" {
   source = "./modules/services"
   # Common
-  az1             = var.az1
-  az2             = var.az2
+  azs             = var.azs
   project         = var.project
   ssm_path_prefix = var.ssm_path_prefix
 
-  # Services
+  # Services - RDS 
+  magento_db_name                         = var.magento_db_name
+  rds_engine                              = var.rds_engine
+  rds_engine_version                      = var.rds_engine_version
+  rds_instance_type                       = var.rds_instance_type
   skip_rds_snapshot_on_destroy            = var.skip_rds_snapshot_on_destroy
   magento_db_allocated_storage            = var.magento_db_allocated_storage
   magento_db_backup_retention_period      = var.magento_db_backup_retention_period
   magento_db_performance_insights_enabled = var.magento_db_performance_insights_enabled
-  rabbitmq_username                       = var.rabbitmq_username
+  magento_db_username                     = var.magento_db_username
   magento_database_password               = var.magento_database_password
-  elasticsearch_domain                    = var.elasticsearch_domain
+
+  # Services - RabbitMQ 
+  mq_engine_version    = var.mq_engine_version
+  rabbitmq_username    = var.rabbitmq_username
+  mq_instance_type     = var.mq_instance_type
+  elasticsearch_domain = var.elasticsearch_domain
+  es_version           = var.es_version
+
+  # Services - Redis
+  redis_instance_type_cache   = var.redis_instance_type_cache
+  redis_instance_type_session = var.redis_instance_type_session
+  redis_clusters_cache        = var.redis_clusters_cache
+  redis_clusters_session      = var.redis_clusters_session
+  redis_engine_version        = var.redis_engine_version
+
+  # Services - Elasticsearch
+  es_instance_count = var.es_instance_count
+  es_instance_type  = var.es_instance_type
+
   # SES
   magento_admin_email = var.magento_admin_email
 
   # Network
-  vpc_id             = module.base.vpc_id
-  private_subnet_id  = module.base.subnet_private_id
-  private2_subnet_id = module.base.subnet_private2_id
-  public_subnet_id   = module.base.subnet_public_id
-  public2_subnet_id  = module.base.subnet_public2_id
-  rds_subnet_id      = module.base.rds_subnet_id
-  rds_subnet2_id     = module.base.rds_subnet2_id
+  vpc_id             = var.vpc_id
+  private_subnet_ids = var.vpc_private_subnet_ids
+  public_subnet_ids  = var.vpc_public_subnet_ids
+  rds_subnet_ids     = var.vpc_rds_subnet_ids
 
   # Security
-  sg_bastion_ssh_in_id      = module.base.sg_bastion_ssh_in_id
-  sg_allow_all_out_id       = module.base.sg_allow_all_out_id
-  sg_restricted_http_in_id  = module.base.sg_restricted_http_in_id
-  sg_restricted_https_in_id = module.base.sg_restricted_https_in_id
-  sg_efs_private_in_id      = module.base.sg_efs_private_in_id
+  sg_efs_id           = module.base.sg_efs_id
+  sg_redis_id         = module.base.sg_redis_id
+  sg_awsmq_id         = module.base.sg_awsmq_id
+  sg_rds_id           = module.base.sg_rds_id
+  sg_elasticsearch_id = module.base.sg_elasticsearch_id
 
   depends_on = [
     module.base
@@ -110,17 +123,19 @@ module "services" {
 # Create Magento AMI
 module "magento-ami" {
   source                 = "./modules/magento-ami"
-  ssm_path_prefix = var.ssm_path_prefix
+  ssm_path_prefix        = var.ssm_path_prefix
   base_ami_id            = data.aws_ami.selected.id
   ssh_key_name           = var.ssh_key_name
   ssh_username           = var.ssh_username
   mage_composer_username = var.mage_composer_username
   mage_composer_password = var.mage_composer_password
-  vpc_id                 = module.base.vpc_id
-  public_subnet_id       = module.base.subnet_public_id
+  vpc_id                 = var.vpc_id
+  public_subnet_ids      = var.vpc_public_subnet_ids
   management_addresses   = var.management_addresses
-  sg_allow_all_out_id    = module.base.sg_allow_all_out_id
   ssh_key_pair_name      = var.ssh_key_pair_name
+  ec2_instance_type      = "t3.medium"
+  sg_ec2_amibuild_id     = module.base.sg_ec2_amibuild_id
+  mage_composer_release  = var.mage_composer_release
 
   depends_on = [
     module.services
@@ -133,11 +148,12 @@ module "varnish-ami" {
   base_ami_id          = data.aws_ami.selected.id
   ssh_key_name         = var.ssh_key_name
   ssh_username         = var.ssh_username
-  vpc_id               = module.base.vpc_id
-  public_subnet_id     = module.base.subnet_public_id
+  vpc_id               = var.vpc_id
+  public_subnet_ids    = var.vpc_public_subnet_ids
   management_addresses = var.management_addresses
-  sg_allow_all_out_id  = module.base.sg_allow_all_out_id
   ssh_key_pair_name    = var.ssh_key_pair_name
+  ec2_instance_type    = "t3.medium"
+  sg_ec2_amibuild_id   = module.base.sg_ec2_amibuild_id
 
   depends_on = [
     module.services
@@ -150,37 +166,42 @@ module "magento" {
   source = "./modules/magento"
   # Common
   project           = var.project
-  ssm_path_prefix = var.ssm_path_prefix
+  ssm_path_prefix   = var.ssm_path_prefix
   ssh_key_name      = var.ssh_key_name
   ssh_username      = var.ssh_username
   ssh_key_pair_name = var.ssh_key_pair_name
   # Network
-  vpc_id             = module.base.vpc_id
-  private_subnet_id  = module.base.subnet_private_id
-  private2_subnet_id = module.base.subnet_private2_id
-  public_subnet_id   = module.base.subnet_public_id
-  public2_subnet_id  = module.base.subnet_public2_id
+  vpc_id             = var.vpc_id
+  private_subnet_ids = var.vpc_private_subnet_ids
+  public_subnet_ids  = var.vpc_public_subnet_ids
   vpc_cidr           = var.vpc_cidr
   # Security
-  sg_bastion_ssh_in_id   = module.base.sg_bastion_ssh_in_id
-  sg_allow_all_out_id    = module.base.sg_allow_all_out_id
-  sg_bastion_http_in_id  = module.base.sg_bastion_http_in_id
-  lb_access_logs_enabled = var.lb_access_logs_enabled
+  sg_alb_magento_id = module.base.sg_alb_magento_id
+  sg_alb_varnish_id = module.base.sg_alb_varnish_id
+  sg_ec2_magento_id = module.base.sg_ec2_magento_id
+  sg_ec2_varnish_id = module.base.sg_ec2_varnish_id
+  sg_efs_id         = module.base.sg_efs_id
 
-  external_lb_sg_ids = tolist(
-    [
-      module.base.sg_all_http_in_id,
-      module.base.sg_all_https_in_id,
-      module.base.sg_allow_all_out_id
-    ]
-  )
+  lb_access_logs_enabled = var.lb_access_logs_enabled
 
   # AMIs
   magento_ami     = module.magento-ami.magento_ami_id
   varnish_ami     = module.varnish-ami.varnish_ami_id
-  cert_arn        = var.cert
-  nat_gateway_ip1 = module.base.nat_gateway_ip1
-  nat_gateway_ip2 = module.base.nat_gateway_ip2
+  alb_cert_arn    = module.acm.cert_arn
+  domain_name     = var.domain_name
+  route53_zone_id = var.route53_zone_id
+
+  # Instance Config
+  ec2_instance_type_magento = var.ec2_instance_type_magento
+  ec2_instance_type_varnish = var.ec2_instance_type_varnish
+
+  # ASGs
+  magento_autoscale_desired = var.magento_autoscale_desired
+  magento_autoscale_max     = var.magento_autoscale_max
+  magento_autoscale_min     = var.magento_autoscale_min
+  varnish_autoscale_desired = var.varnish_autoscale_desired
+  varnish_autoscale_max     = var.varnish_autoscale_max
+  varnish_autoscale_min     = var.varnish_autoscale_min
 
   depends_on = [
     module.magento-ami,

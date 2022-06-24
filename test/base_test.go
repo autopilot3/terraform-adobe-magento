@@ -30,8 +30,7 @@ var baseTestCases = []testCase{
 
 func validateSubnetIds(t *testing.T, tfOpts *terraform.Options) {
 	testIds := []string{
-		"vpc_id", "subnet_private_id", "subnet_public_id", "subnet_private2_id",
-		"subnet_public2_id", "rds_subnet_id", "rds_subnet2_id",
+		"vpc_id", "private_subnet_ids", "public_subnet_ids", "rds_subnet_ids",
 	}
 	for _, name := range testIds {
 		id := terraform.Output(t, tfOpts, name)
@@ -64,15 +63,11 @@ func useExistingVPC(t *testing.T, exTfOpts *terraform.Options) {
 	vars := map[string]interface{}{
 		"region":                 "us-east-1",
 		"profile":                "aws-quickstart",
-		"create_vpc":             false,
 		"vpc_cidr":               "10.0.0.0/16",
 		"vpc_id":                 terraform.Output(t, exTfOpts, "vpc_id"),
-		"vpc_public_subnet_id":   terraform.Output(t, exTfOpts, "subnet_public_id"),
-		"vpc_public2_subnet_id":  terraform.Output(t, exTfOpts, "subnet_public2_id"),
-		"vpc_private_subnet_id":  terraform.Output(t, exTfOpts, "subnet_private_id"),
-		"vpc_private2_subnet_id": terraform.Output(t, exTfOpts, "subnet_private2_id"),
-		"vpc_rds_subnet_id":      terraform.Output(t, exTfOpts, "rds_subnet_id"),
-		"vpc_rds_subnet2_id":     terraform.Output(t, exTfOpts, "rds_subnet2_id"),
+		"vpc_public_subnet_ids":  terraform.Output(t, exTfOpts, "public_subnet_ids"),
+		"vpc_private_subnet_ids": terraform.Output(t, exTfOpts, "subnet_private_id"),
+		"vpc_rds_subnet_ids":     terraform.Output(t, exTfOpts, "rds_subnet_ids"),
 	}
 	newTfOpts := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: tmpDir,
@@ -87,9 +82,7 @@ func useExistingVPC(t *testing.T, exTfOpts *terraform.Options) {
 	changes := plan.RawPlan.OutputChanges
 
 	testOutputs := []string{
-		"vpc_id", "nat_gateway_ip1", "nat_gateway_ip2", "rds_subnet2_id", "rds_subnet_id",
-		"subnet_private2_id", "subnet_private_id", "subnet_public2_id",
-		"subnet_public_id",
+		"vpc_id", "rds_subnet_ids", "private_subnet_ids", "public_subnet_ids",
 	}
 	for _, name := range testOutputs {
 		oldVal := terraform.Output(t, exTfOpts, name)

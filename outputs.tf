@@ -1,9 +1,9 @@
 output "magento_frontend_url" {
-  value = module.magento.cloudfront-distribution-url
+  value = var.domain_name
 }
 
 output "magento_admin_url" {
-  value = "${module.magento.cloudfront-distribution-url}/admin"
+  value = "${var.domain_name}/admin"
 }
 
 output "magento_admin_password" {

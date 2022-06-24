@@ -21,16 +21,23 @@ variable "ssh_key_pair_name" {
   description = "Generated key-pair name in the AWS console."
 }
 
+
+variable "ec2_instance_type" {
+  type        = string
+  description = "EC2 Instance Type for building AMI"
+}
+
+
 ###################################
 #  SecurityGroups and Networking  #
 ###################################
-variable "sg_allow_all_out_id" {
-  description = "Security group ID for allowing outbound connections"
-  type        = string
+
+variable "sg_ec2_amibuild_id" {
+  type = string
 }
 
-variable "public_subnet_id" {
-  type = string
+variable "public_subnet_ids" {
+  type = list(string)
 }
 
 variable "vpc_id" {

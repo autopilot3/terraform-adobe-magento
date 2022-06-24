@@ -1,218 +1,366 @@
-#####################
-#  Security Groups  #
-#####################
+# -------------------
+# | Security groups |
+# -------------------
 
-# Allow HTTP traffic to port 80 from bastion host
-resource "aws_security_group" "from_bastion_http_in" {
-  name        = "from_bastion_http_in"
-  description = "Allow incoming HTTP traffic from bastion host"
-  ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-    cidr_blocks = [
-      local.public_subnet_cidr_block,
-      local.public2_subnet_cidr_block
-    ]
-  }
-  vpc_id = local.vpc_id
+resource "aws_security_group" "alb_varnish" {
+  name        = "${var.project}-alb-varnish"
+  description = "ALB Varnish"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "from_bastion_http_in"
-    Terraform = true
+    Name = "${var.project}-alb-varnish"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "alb_varnish_in_global_http" {
+  security_group_id = aws_security_group.alb_varnish.id
 
-# Allow SSH from management IP addresses to bastion host
-resource "aws_security_group" "management_bastion_ssh_in" {
-  name        = "management_bastion_ssh_in"
-  description = "Allow incoming connections to the bastion host"
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = var.management_addresses
-  }
-  vpc_id = local.vpc_id
+  type        = "ingress"
+  from_port   = 80
+  to_port     = 80
+  protocol    = "TCP"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "alb_varnish_in_global_https" {
+  security_group_id = aws_security_group.alb_varnish.id
+
+  type        = "ingress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "TCP"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "alb_varnish_out_ec2_varnish_http" {
+
+  security_group_id = aws_security_group.alb_varnish.id
+
+  type      = "egress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_varnish.id
+}
+
+resource "aws_security_group" "ec2_varnish" {
+  name        = "${var.project}-ec2-varnish"
+  description = "EC2 Varnish"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "bastion_ssh_in"
-    Terraform = true
+    Name = "${var.project}-ec2-varnish"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "ec2_varnish_in_alb_varnish_http" {
+  security_group_id = aws_security_group.ec2_varnish.id
 
-# Allow SSH from bastion host
-resource "aws_security_group" "from_bastion_ssh_in" {
-  name        = "from_bastion_ssh_in"
-  description = "Allow incoming SSH connections from bastion host"
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-    cidr_blocks = [
-      local.public_subnet_cidr_block,
-      local.public2_subnet_cidr_block
-    ]
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.alb_varnish.id
+}
+resource "aws_security_group_rule" "ec2_varnish_out_alb_magento_http" {
+  security_group_id = aws_security_group.ec2_varnish.id
+
+  type      = "egress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.alb_magento.id
+}
+resource "aws_security_group_rule" "ec2_varnish_out_world" {
+  security_group_id = aws_security_group.ec2_varnish.id
+
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group" "alb_magento" {
+  name        = "${var.project}-alb-magento"
+  description = "ALB Magento"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "from_bastion_ssh_in"
-    Terraform = true
+    Name = "${var.project}-alb-magento"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "alb_magento_in_ec2_varnish_http" {
+  security_group_id = aws_security_group.alb_magento.id
 
-# Allow all outgoing traffic 
-resource "aws_security_group" "allow_all_out" {
-  name        = "allow_all_out"
-  description = "Allow all outbound connections"
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.alb_varnish.id
+
+}
+resource "aws_security_group_rule" "alb_magento_out_ec2_magento_http" {
+
+  security_group_id = aws_security_group.alb_magento.id
+
+  type      = "egress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_magento.id
+
+}
+
+resource "aws_security_group" "ec2_magento" {
+  name        = "${var.project}-ec2-magento"
+  description = "EC2 Magento"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "allow_all_out"
-    Terraform = true
+    Name = "${var.project}-ec2-magento"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "ec2_magento_in_alb_magento_http" {
+  security_group_id = aws_security_group.ec2_magento.id
 
-# Allow HTTP traffic to certain IP addresses
-resource "aws_security_group" "restricted_http_in" {
-  name        = "restricted_http_in"
-  description = "Allow HTTP traffic from limited IP addresses"
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "TCP"
-    cidr_blocks = var.management_addresses
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 80
+  to_port   = 80
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.alb_magento.id
+}
+resource "aws_security_group_rule" "ec2_magento_out_world" {
+  security_group_id = aws_security_group.ec2_magento.id
+
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "ec2_magento_out_efs" {
+  security_group_id = aws_security_group.ec2_magento.id
+
+  type      = "egress"
+  from_port = 2049
+  to_port   = 2049
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.efs.id
+}
+
+resource "aws_security_group" "efs" {
+  name        = "${var.project}-efs-magento"
+  description = "EFS Magento"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "restricted_http_in"
-    Terraform = true
+    Name = "${var.project}-efs-magento"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "efs_in_ec2_magento" {
+  security_group_id = aws_security_group.efs.id
 
-# Allow HTTPS traffic to certain IP addresses
-resource "aws_security_group" "restricted_https_in" {
-  name        = "restricted_https_in"
-  description = "Allow HTTPS traffic from limited IP addresses"
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "TCP"
-    cidr_blocks = var.management_addresses
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 2049
+  to_port   = 2049
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_magento.id
+}
+
+resource "aws_security_group" "ec2_amibuild" {
+  name        = "${var.project}-ec2-amibuild"
+  description = "EC2 AMI Build"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "restricted_https_in"
-    Terraform = true
+    Name = "${var.project}-ec2-amibuild"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "ec2_amibuild_in_ssh" {
+  security_group_id = aws_security_group.efs.id
 
-resource "aws_security_group" "all_http_in" {
-  name        = "all_http_in"
-  description = "Allow incoming HTTP traffic from everywhere"
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 22
+  to_port   = 22
+  protocol  = "TCP"
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "ec2_amibuild_out_world" {
+  security_group_id = aws_security_group.efs.id
+
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
+
+resource "aws_security_group" "redis" {
+  name        = "${var.project}-redis"
+  description = "Redis"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "http-in"
-    Terraform = true
+    Name = "${var.project}-redis"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "redis_in_ec2_magento" {
+  security_group_id = aws_security_group.redis.id
 
-# Allow HTTPS traffic to port 443 from all
+  type      = "ingress"
+  from_port = 6379
+  to_port   = 6379
+  protocol  = "TCP"
 
-resource "aws_security_group" "all_https_in" {
-  name        = "all_https_in"
-  description = "Allow incoming HTTPS traffic"
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  vpc_id = local.vpc_id
+  source_security_group_id = aws_security_group.ec2_magento.id
+}
+resource "aws_security_group_rule" "redis_in_self" {
+  security_group_id = aws_security_group.redis.id
+
+  type      = "ingress"
+  from_port = 6379
+  to_port   = 6379
+  protocol  = "TCP"
+
+  self = true
+}
+resource "aws_security_group_rule" "redis_out_self" {
+  security_group_id = aws_security_group.redis.id
+
+  type      = "egress"
+  from_port = 6379
+  to_port   = 6379
+  protocol  = "TCP"
+
+  self = true
+}
+
+
+resource "aws_security_group" "awsmq" {
+  name        = "${var.project}-awsmq"
+  description = "AWS MQ (RabbitMQ)"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "all-https-in"
-    Terraform = true
+    Name = "${var.project}-awsmq"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+resource "aws_security_group_rule" "awsmq_in_ec2_magento" {
+  security_group_id = aws_security_group.awsmq.id
 
-resource "aws_security_group" "efs_private_in" {
-  name        = "efs_private_in"
-  description = "Allow NFS from private subnet"
-  ingress {
-    from_port = 2049
-    to_port   = 2049
-    protocol  = "TCP"
-    cidr_blocks = [
-      local.private_subnet_cidr_block,
-      local.private2_subnet_cidr_block
-    ]
-  }
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "TCP"
-    cidr_blocks = [
-      local.private_subnet_cidr_block,
-      local.private2_subnet_cidr_block
-    ]
-  }
-  vpc_id = local.vpc_id
+  type      = "ingress"
+  from_port = 5671
+  to_port   = 5671
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_magento.id
+}
+
+resource "aws_security_group_rule" "awsmq_in_self" {
+  security_group_id = aws_security_group.awsmq.id
+
+  type      = "ingress"
+  from_port = 5671
+  to_port   = 5671
+  protocol  = "TCP"
+
+  self = true
+}
+
+resource "aws_security_group_rule" "awsmq_out_self" {
+  security_group_id = aws_security_group.awsmq.id
+
+  type      = "egress"
+  from_port = 5671
+  to_port   = 5671
+  protocol  = "TCP"
+
+  self = true
+}
+
+resource "aws_security_group" "rds" {
+  name        = "${var.project}-xxx"
+  description = "rds"
+  vpc_id      = var.vpc_id
 
   tags = {
-    Name      = "efs-private-in"
-    Terraform = true
+    Name = "${var.project}-rds"
   }
 
   lifecycle {
     create_before_destroy = true
   }
+}
+resource "aws_security_group_rule" "rds_in_ec2_magento" {
+  security_group_id = aws_security_group.rds.id
+
+  type      = "ingress"
+  from_port = 3306
+  to_port   = 3306
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_magento.id
+}
+
+resource "aws_security_group" "elasticsearch" {
+  name        = "${var.project}-elasticsearch"
+  description = "elasticsearch"
+  vpc_id      = var.vpc_id
+
+  tags = {
+    Name = "${var.project}-xxx"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+resource "aws_security_group_rule" "elasticsearch_in_ec2_magento_https" {
+  security_group_id = aws_security_group.elasticsearch.id
+
+  type      = "ingress"
+  from_port = 443
+  to_port   = 443
+  protocol  = "TCP"
+
+  source_security_group_id = aws_security_group.ec2_magento.id
 }

@@ -14,7 +14,7 @@ variable "domain_name" {
   default     = false
 }
 
-variable "cert" {
+variable "cert_arn" {
   type    = string
   default = false
 }
@@ -46,24 +46,15 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "create_vpc" {
-  type = bool
-}
-
 variable "vpc_cidr" {
   type        = string
   default     = "10.0.0.0/16"
   description = "VPC CIDR"
 }
 
-variable "az1" {
-  type    = string
-  default = "us-east-1a"
-}
-
-variable "az2" {
-  type    = string
-  default = "us-east-1b"
+variable "azs" {
+  type    = list(string)
+  default = ["us-east-1a"]
 }
 
 variable "management_addresses" {
@@ -141,32 +132,17 @@ variable "vpc_id" {
   type    = string
   default = ""
 }
-variable "vpc_public_subnet_id" {
-  type    = string
-  default = ""
+variable "vpc_public_subnet_ids" {
+  type    = list(string)
+  default = []
 }
 
-variable "vpc_public2_subnet_id" {
+variable "vpc_private_subnet_ids" {
   type    = string
-  default = ""
+  default = []
 }
 
-variable "vpc_private_subnet_id" {
+variable "vpc_rds_subnet_ids" {
   type    = string
-  default = ""
-}
-
-variable "vpc_private2_subnet_id" {
-  type    = string
-  default = ""
-}
-
-variable "vpc_rds_subnet_id" {
-  type    = string
-  default = ""
-}
-
-variable "vpc_rds_subnet2_id" {
-  type    = string
-  default = ""
+  default = []
 }

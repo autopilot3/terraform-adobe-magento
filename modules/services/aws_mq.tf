@@ -5,7 +5,7 @@ resource "random_string" "mq_password" {
 }
 
 resource "aws_mq_broker" "rabbit_mq" {
-  broker_name = "rabbitmq"
+  broker_name = "${var.project}-rabbitmq"
 
   engine_type                = "RabbitMQ"
   engine_version             = var.mq_engine_version
@@ -13,14 +13,9 @@ resource "aws_mq_broker" "rabbit_mq" {
   auto_minor_version_upgrade = true
   deployment_mode            = "CLUSTER_MULTI_AZ"
   publicly_accessible        = false
-  subnet_ids = [
-    var.private_subnet_id,
-    var.private2_subnet_id
-  ]
+  subnet_ids                 = var.private_subnet_ids
 
-  security_groups = [
-    aws_security_group.allow_awsmq_in.id
-  ]
+  security_groups = [var.sg_awsmq_id]
 
   user {
     username = var.rabbitmq_username
