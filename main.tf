@@ -69,11 +69,12 @@ module "services" {
   project         = var.project
   ssm_path_prefix = var.ssm_path_prefix
 
-  # Services - RDS 
+  # Services - RDS
   magento_db_name                         = var.magento_db_name
   rds_engine                              = var.rds_engine
   rds_engine_version                      = var.rds_engine_version
   rds_instance_type                       = var.rds_instance_type
+  rds_multi_az                            = var.rds_multi_az
   skip_rds_snapshot_on_destroy            = var.skip_rds_snapshot_on_destroy
   magento_db_allocated_storage            = var.magento_db_allocated_storage
   magento_db_backup_retention_period      = var.magento_db_backup_retention_period
@@ -81,12 +82,13 @@ module "services" {
   magento_db_username                     = var.magento_db_username
   magento_database_password               = var.magento_database_password
 
-  # Services - RabbitMQ 
+  # Services - RabbitMQ
   mq_engine_version    = var.mq_engine_version
   rabbitmq_username    = var.rabbitmq_username
   mq_instance_type     = var.mq_instance_type
   elasticsearch_domain = var.elasticsearch_domain
   es_version           = var.es_version
+  mq_deployment_mode   = var.mq_deployment_mode
 
   # Services - Redis
   redis_instance_type_cache   = var.redis_instance_type_cache

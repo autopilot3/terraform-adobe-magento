@@ -244,6 +244,10 @@ variable "rds_instance_type" {
   type    = string
 }
 
+variable "rds_multi_az" { 
+  type = bool
+}
+
 variable "magento_db_name" {
   description = "RDS database name for Magento"
   type        = string
@@ -300,6 +304,10 @@ variable "mq_engine_version" {
   type = string
 }
 
+variable "mq_deployment_mode" { 
+  type = string
+  default = "CLUSTER_MULTI_AZ"
+}
 
 
 ##################

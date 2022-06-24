@@ -5,6 +5,12 @@ data "aws_region" "current" {}
 
 data "aws_caller_identity" "current" {}
 
+
+resource "random_shuffle" "elasticsearch_subnets" { 
+  input        = var.private_subnet_ids
+  result_count = 1
+}
+
 resource "aws_elasticsearch_domain" "es" {
   domain_name           = var.elasticsearch_domain
   elasticsearch_version = var.es_version
@@ -16,7 +22,7 @@ resource "aws_elasticsearch_domain" "es" {
   }
 
   vpc_options {
-    subnet_ids = var.private_subnet_ids
+    subnet_ids = var.es_instance_count == 1 ? random_shuffle.elasticsearch_subnets.result : var.private_subnet_ids
 
     security_group_ids = [var.sg_elasticsearch_id]
   }
@@ -54,6 +60,4 @@ CONFIG
     Domain    = var.elasticsearch_domain
     Terraform = true
   }
-
-  depends_on = [aws_iam_service_linked_role.es]
 }

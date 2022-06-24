@@ -4,6 +4,11 @@ resource "random_string" "mq_password" {
   upper   = true
 }
 
+resource "random_shuffle" "mq_subnet_ids" { 
+  input        = var.private_subnet_ids
+  result_count = 1
+}
+
 resource "aws_mq_broker" "rabbit_mq" {
   broker_name = "${var.project}-rabbitmq"
 
@@ -11,9 +16,9 @@ resource "aws_mq_broker" "rabbit_mq" {
   engine_version             = var.mq_engine_version
   host_instance_type         = var.mq_instance_type
   auto_minor_version_upgrade = true
-  deployment_mode            = "CLUSTER_MULTI_AZ"
+  deployment_mode            = var.mq_deployment_mode
   publicly_accessible        = false
-  subnet_ids                 = var.private_subnet_ids
+  subnet_ids                 = var.mq_deployment_mode == "SINGLE_INSTANCE" ? random_shuffle.mq_subnet_ids.result : var.private_subnet_ids
 
   security_groups = [var.sg_awsmq_id]
 

@@ -137,7 +137,9 @@ variable "rds_engine_version" {
 variable "rds_instance_type" {
   type = string
 }
-
+variable "rds_multi_az" { 
+  type = bool
+}
 #######################
 # RabbitMQ            #
 #######################
@@ -151,6 +153,9 @@ variable "mq_engine_version" {
 variable "rabbitmq_username" {
   description = "Username for RabbitMQ"
   type        = string
+}
+variable "mq_deployment_mode" { 
+  type = string
 }
 
 #######################

@@ -27,7 +27,7 @@ resource "aws_db_instance" "magento_db" {
   allow_major_version_upgrade  = false
   auto_minor_version_upgrade   = true
   instance_class               = var.rds_instance_type
-  multi_az                     = true
+  multi_az                     = var.rds_multi_az
   port                         = 3306
   db_name                      = var.magento_db_name
   username                     = var.magento_db_username

@@ -2,6 +2,23 @@
 # | ElastiCache (Redis)  |
 # ------------------------
 
+locals { 
+  # if the number in the cluster is less than the AZ count, return from random_shuffle. Otherwise the entire list.
+  azs_cache = var.redis_clusters_cache < length(var.azs) ? random_shuffle.redis_cache_azs.result : var.azs
+  azs_session = var.redis_clusters_session < length(var.azs) ? random_shuffle.redis_session_azs.result : var.azs
+
+}
+
+resource "random_shuffle" "redis_cache_azs" { 
+  input        = var.azs
+  result_count = var.redis_clusters_cache
+}
+resource "random_shuffle" "redis_session_azs" { 
+  input        = var.azs
+  result_count = var.redis_clusters_session
+}
+
+
 resource "aws_elasticache_subnet_group" "elasticache" {
   name        = "${var.project}-elasticache-subnet-group"
   description = "Use the private subnet for ElastiCache instances."
@@ -20,9 +37,9 @@ resource "aws_elasticache_parameter_group" "magento_required" {
 
 # Redis instance for backend caching
 resource "aws_elasticache_replication_group" "redis-backend-cache" {
-  automatic_failover_enabled = true
-  availability_zones         = var.azs
-  multi_az_enabled           = true
+  automatic_failover_enabled = var.redis_clusters_cache == 1 ? false : true
+  availability_zones         = local.azs_cache
+  multi_az_enabled           = var.redis_clusters_cache == 1 ? false : true
   engine                     = "redis"
   engine_version             = var.redis_engine_version
   replication_group_id       = "${var.project}-redis-backend-cache"
@@ -47,9 +64,9 @@ resource "aws_elasticache_replication_group" "redis-backend-cache" {
 
 # Redis instance for sessions
 resource "aws_elasticache_replication_group" "redis-sessions" {
-  automatic_failover_enabled = true
-  availability_zones         = var.azs
-  multi_az_enabled           = true
+  automatic_failover_enabled = var.redis_clusters_cache == 1 ? false : true
+  availability_zones         = local.azs_session
+  multi_az_enabled           = var.redis_clusters_session == 1 ? false : true
   engine                     = "redis"
   engine_version             = var.redis_engine_version
   replication_group_id       = "${var.project}-redis-sessions"
