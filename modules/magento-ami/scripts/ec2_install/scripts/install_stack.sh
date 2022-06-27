@@ -25,7 +25,11 @@ echo "magento ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/91-magento
 sudo pip3 install boto3
 sudo pip3 install --upgrade awscli
 
-$BASEDIR/scripts/install_mage_credentials.py
+echo "start install_mage_credentials.py"
+
+python3 $BASEDIR/scripts/install_mage_credentials.py
+
+echo "done install_mage_credentials.py"
 
 $BASEDIR/scripts/install_composer.sh
 
