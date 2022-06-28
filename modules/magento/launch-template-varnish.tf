@@ -4,6 +4,7 @@ locals {
   varnish_userdata = <<-EOF
     #!/bin/bash
     sudo -u ec2-user crontab -r
+    sed -i "s/DNS_RESOLVER/${cidrhost(var.vpc_cidr, "2")}/g" /etc/nginx/conf.d/varnish.conf
     sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_magento.dns_name}/g" /etc/nginx/conf.d/varnish.conf
     sed -i "s/MAGENTO_INTERNAL_ALB/${aws_alb.alb_magento.dns_name}/g" /etc/varnish/backends.vcl
     systemctl start nginx
