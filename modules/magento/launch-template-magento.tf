@@ -4,11 +4,11 @@
 
 # Magento cfg
 locals {
-  magento_userdata = <<EOF
-#!/bin/bash
-sleep $[ ( $RANDOM % 10 )  + 1 ]s
-sudo -u admin crontab -r
-sudo su - magento -c "/tmp/ec2_install/scripts/magento-setup.sh"
+  magento_userdata = <<-EOF
+    #!/bin/bash
+    sleep $[ ( $RANDOM % 10 )  + 1 ]s
+    sudo -u ec2-user crontab -r
+    sudo su - magento -c "/tmp/ec2_install/scripts/magento-setup.sh"
   EOF
 }
 

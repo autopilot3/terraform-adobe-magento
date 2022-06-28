@@ -2,16 +2,14 @@
 BASEDIR=/tmp/ec2_install
 sudo cp -a $BASEDIR /opt/
 
-grep -i debian /etc/os-release
-if [ $? -eq 0 ]; then
+if grep -i debian /etc/os-release; then
   $BASEDIR/scripts/install_base_deb.sh "$BASEDIR"
   $BASEDIR/scripts/install_nginx_deb.sh "$BASEDIR"
   $BASEDIR/scripts/install_php_deb.sh "$BASEDIR"
   $BASEDIR/scripts/install_efshelper_deb.sh
 fi
 
-grep -i amazon /etc/os-release
-if [ $? -eq 0 ]; then
+if grep -i amazon /etc/os-release; then
   echo "Wait for cloud-init to complete"
   sudo cloud-init status --wait
   echo "Cloud init completed"

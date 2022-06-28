@@ -2,8 +2,8 @@
 # pylint: disable=bare-except,consider-using-f-string,missing-module-docstring,invalid-name,line-too-long
 
 import os
-import boto3
 import json
+import boto3
 
 REGION = os.environ.get('REGION',  'ap-southeast-2')
 
@@ -13,12 +13,12 @@ ssm = session.client('ssm')
 ssm_path_prefix="/"
 
 with open('/tmp/ec2_install/scripts/ssm.json') as ssm_file:
-  ssm_config = json.load(ssm_file)
-  ssm_path_prefix = ssm_config['ssm_path_prefix']
+    ssm_config = json.load(ssm_file)
+    ssm_path_prefix = ssm_config['ssm_path_prefix']
 
 try:
     mage_composer_username = ssm.get_parameter(
-       Name=f"{ssm_path_prefix}mage_composer_username", 
+       Name=f"{ssm_path_prefix}mage_composer_username",
        WithDecryption=True
      )
 except Exception as e:
@@ -26,7 +26,7 @@ except Exception as e:
 
 try:
     mage_composer_password = ssm.get_parameter(
-        Name=f"{ssm_path_prefix}mage_composer_password", 
+        Name=f"{ssm_path_prefix}mage_composer_password",
         WithDecryption=True
     )
 except Exception as e:

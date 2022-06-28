@@ -4,11 +4,11 @@ BASEDIR=$1
 sudo adduser --disabled-password --gecos "" magento
 
 sudo rm -rf ~magento/.bashrc
-sudo rm -rf ~admin/.bashrc
+sudo rm -rf ~ec2-user/.bashrc
 sudo cp -a $BASEDIR/scripts/.bashrc ~magento/.bashrc
-sudo cp -a $BASEDIR/scripts/.bashrc ~admin/.bashrc
+sudo cp -a $BASEDIR/scripts/.bashrc ~ec2-user/.bashrc
 sudo chown magento. ~magento/.bashrc
-sudo chown admin. ~admin/.bashrc
+sudo chown ec2-user. ~ec2-user/.bashrc
 
 sudo apt update
 

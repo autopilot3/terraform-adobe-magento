@@ -16,7 +16,7 @@ sudo chmod +x $BASEDIR/scripts/magento_vars.py
 sudo cp -a $VARIABLE_TEMP_FILE /opt/
 
 sudo -u magento sh -c 'ssh-keygen -t rsa -q -f "$HOME/.ssh/id_rsa" -N ""'
-sudo cp ~admin/.ssh/authorized_keys ~magento/.ssh/
+sudo cp ~ec2-user/.ssh/authorized_keys ~magento/.ssh/
 sudo chown magento. ~magento/.ssh/authorized_keys
 sudo chmod 600 ~magento/.ssh/authorized_keys
 
