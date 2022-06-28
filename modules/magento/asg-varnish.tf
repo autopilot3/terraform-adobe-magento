@@ -11,6 +11,14 @@ resource "aws_autoscaling_group" "varnish" {
   }
   vpc_zone_identifier = var.private_subnet_ids
 
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 0
+    }
+    triggers = ["tag"]
+  }
+
   tag {
     key                 = "Name"
     value               = "${var.project}-varnish-node"

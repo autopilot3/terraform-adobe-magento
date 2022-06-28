@@ -11,6 +11,14 @@ resource "aws_autoscaling_group" "magento" {
   vpc_zone_identifier  = var.private_subnet_ids
   termination_policies = ["NewestInstance"]
 
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 0
+    }
+    triggers = ["tag"]
+  }
+
   tag {
     key                 = "Name"
     value               = "${var.project}-magento-web-node"
