@@ -9,7 +9,7 @@ resource "random_string" "random_encryption_key" {
 }
 
 resource "aws_ssm_parameter" "magento_admin_password" {
-  name  = "/${var.project}/magento_admin_password"
+  name  = "${var.ssm_path_prefix}magento_admin_password"
   type  = "SecureString"
   value = var.magento_admin_password
   tags = {
@@ -18,7 +18,7 @@ resource "aws_ssm_parameter" "magento_admin_password" {
 }
 
 resource "aws_ssm_parameter" "magento_admin_firstname" {
-  name  = "/${var.project}/magento_admin_firstname"
+  name  = "${var.ssm_path_prefix}magento_admin_firstname"
   type  = "String"
   value = var.magento_admin_firstname
   tags = {
@@ -27,7 +27,7 @@ resource "aws_ssm_parameter" "magento_admin_firstname" {
 }
 
 resource "aws_ssm_parameter" "magento_admin_lastname" {
-  name  = "/${var.project}/magento_admin_lastname"
+  name  = "${var.ssm_path_prefix}magento_admin_lastname"
   type  = "String"
   value = var.magento_admin_lastname
   tags = {
@@ -36,7 +36,7 @@ resource "aws_ssm_parameter" "magento_admin_lastname" {
 }
 
 resource "aws_ssm_parameter" "magento_admin_email" {
-  name  = "/${var.project}/magento_admin_email"
+  name  = "${var.ssm_path_prefix}magento_admin_email"
   type  = "String"
   value = var.magento_admin_email
   tags = {
@@ -45,7 +45,7 @@ resource "aws_ssm_parameter" "magento_admin_email" {
 }
 
 resource "aws_ssm_parameter" "magento_admin_username" {
-  name  = "/${var.project}/magento_admin_username"
+  name  = "${var.ssm_path_prefix}magento_admin_username"
   type  = "String"
   value = var.magento_admin_username
   tags = {
