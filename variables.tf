@@ -145,7 +145,7 @@ variable "magento_autoscale_desired" {
 # Magento EC2 Instance Size #
 #############################
 variable "ec2_instance_type_magento" {
-  default = "t3a.medium"
+  default = "m6i.large"
 }
 
 
@@ -166,7 +166,7 @@ variable "varnish_autoscale_desired" {
 # Varnish EC2 Instance Size #
 #############################
 variable "ec2_instance_type_varnish" {
-  default = "t3a.small"
+  default = "m6i.large"
 }
 
 
@@ -244,7 +244,7 @@ variable "rds_instance_type" {
   type    = string
 }
 
-variable "rds_multi_az" { 
+variable "rds_multi_az" {
   type = bool
 }
 
@@ -304,8 +304,8 @@ variable "mq_engine_version" {
   type = string
 }
 
-variable "mq_deployment_mode" { 
-  type = string
+variable "mq_deployment_mode" {
+  type    = string
   default = "CLUSTER_MULTI_AZ"
 }
 
