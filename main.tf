@@ -22,6 +22,7 @@ module "ssm" {
   magento_admin_username    = var.magento_admin_username
   magento_admin_password    = var.magento_admin_password
   magento_database_password = var.magento_database_password
+  magento_base_domain       = var.domain_name
 }
 
 # Run base module which includes Networking
@@ -61,7 +62,7 @@ module "acm" {
 }
 
 
-# Create services: RabbitMQ, Redis, CloudFront and RDS
+# Create services: RabbitMQ, Redis and RDS
 module "services" {
   source = "./modules/services"
   # Common
@@ -168,7 +169,7 @@ module "varnish-ami" {
 }
 
 
-# Create ALB/ASG, CloudFront and Magento EC2 instances
+# Create ALB/ASG and Magento EC2 instances
 module "magento" {
   source = "./modules/magento"
   # Common

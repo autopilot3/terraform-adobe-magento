@@ -71,10 +71,10 @@ except:
   print("rabbitmq_password: NotFound")
 
 try:
-  cloudfront_domain = ssm.get_parameter(Name=f"{ssm_path_prefix}cloudfront_domain", WithDecryption=True)
-  print("cloudfront_domain: {}".format(cloudfront_domain['Parameter']['Value']))
+  base_domain = ssm.get_parameter(Name=f"{ssm_path_prefix}base_domain", WithDecryption=True)
+  print("base_domain: {}".format(base_domain['Parameter']['Value']))
 except:
-  print("cloudfront_domain: NotFound")
+  print("base_domain: NotFound")
 
 try:
   magento_crypt_key = ssm.get_parameter(Name=f"{ssm_path_prefix}magento_crypt_key", WithDecryption=True)

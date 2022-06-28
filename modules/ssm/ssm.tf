@@ -78,3 +78,16 @@ resource "aws_ssm_parameter" "project_name" {
     Terraform = true
   }
 }
+
+################
+# Base Domain  #
+################
+
+resource "aws_ssm_parameter" "base_domain" {
+  name  = "${var.ssm_path_prefix}base_domain"
+  type  = "String"
+  value = var.magento_base_domain
+  tags = {
+    Terraform = true
+  }
+}

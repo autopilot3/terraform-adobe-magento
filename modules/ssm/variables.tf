@@ -37,3 +37,8 @@ variable "magento_database_password" {
   description = "Password for Magento DB."
   type        = string
 }
+
+variable "magento_base_domain" {
+  description = "Base domain for Magento."
+  type        = string
+}
