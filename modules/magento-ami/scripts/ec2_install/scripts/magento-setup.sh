@@ -32,15 +32,14 @@ MAGENTO_VARNISH_HOST=$(hostname --all-ip-addresses | awk '{$1=$1;print}')
 BASE_DOMAIN=$(grep 'cloudfront_domain:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_CRYPT_KEY=$(grep 'magento_crypt_key:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_FILES_S3=$(grep 'magento_files_s3:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
-MAGENTO_CRYPT_KEY=$(grep 'magento_crypt_key:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
-MAGENTO_EFS_ID=$(grep 'magento_efs_id:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
+# MAGENTO_EFS_ID=$(grep 'magento_efs_id:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_ADMIN_EMAIL=$(grep 'magento_admin_email:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_ADMIN_USERNAME=$(grep 'magento_admin_username:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_ADMIN_PASS=$(grep 'magento_admin_password:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_ADMIN_FIRSTNAME=$(grep 'magento_admin_firstname:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 MAGENTO_ADMIN_LASTNAME=$(grep 'magento_admin_lastname:' ${VARIABLE_TEMP_FILE} | tail -n1 | awk '{ print $2}')
 
-MAGENTO_BUCKET=$(echo $MAGENTO_FILES_S3 | cut -d. -f1)
+MAGENTO_BUCKET=$(echo "$MAGENTO_FILES_S3" | cut -d. -f1)
 
 sudo sed -i "s/AWS_BUCKET/$MAGENTO_FILES_S3/g" /etc/nginx/conf.d/magento.conf
 sudo systemctl restart nginx
@@ -146,11 +145,13 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
 
     sudo cp /opt/ec2_install/scripts/sync.sh /home/magento/sync.sh
     sudo chown magento. /home/magento/sync.sh
+    # shellcheck disable=SC2024
     sudo -u magento crontab -l >/tmp/tmpcron
     sudo -u magento echo "*/2 * * * * /bin/bash /home/magento/sync.sh" | sudo -u magento tee -a /tmp/tmpcron
     sudo -u magento crontab /tmp/tmpcron
 else
     sudo -u magento aws s3 cp s3://"${MAGENTO_BUCKET}"/sync/master.pub /home/magento/master.pub
+    # shellcheck disable=SC2024
     sudo -u magento cat /home/magento/master.pub >>/home/magento/.ssh/authorized_keys
     sudo chmod 600 /home/magento/.ssh/authorized_keys
     sudo chown magento. /home/magento/.ssh/authorized_keys
@@ -163,7 +164,7 @@ echo flushall >/dev/tcp/"${MAGENTO_REDIS_CACHE_HOST}"/6379
 sudo rm /etc/sudoers.d/91-magento
 
 ### set permissions per https://devdocs.magento.com/guides/v2.4/config-guide/prod/prod_file-sys-perms.html
-cd /var/www/html/magento
+cd /var/www/html/magento || exit 1
 find app/code var/view_preprocessed vendor pub/static app/etc generated/code generated/metadata \( -type f -or -type d \) -exec chmod u-w {} + && chmod o-rwx app/etc/env.php
 chmod u+x bin/magento
 chmod -R u+w .
