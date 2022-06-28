@@ -1,5 +1,5 @@
 #!/bin/bash
-BASEDIR=/opt/ec2_install
+BASEDIR=/tmp/ec2_install
 
 REGION=$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq .region -r)
 export REGION
@@ -143,7 +143,7 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cron:install
 
-    sudo cp /opt/ec2_install/scripts/sync.sh /home/magento/sync.sh
+    sudo cp /tmp/ec2_install/scripts/sync.sh /home/magento/sync.sh
     sudo chown magento. /home/magento/sync.sh
     # shellcheck disable=SC2024
     sudo -u magento crontab -l >/tmp/tmpcron

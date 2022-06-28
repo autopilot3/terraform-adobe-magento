@@ -1,5 +1,5 @@
 #!/bin/bash
-BASEDIR=/opt/ec2_install
+BASEDIR=/tmp/ec2_install
 
 REGION=$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq .region -r)
 export REGION

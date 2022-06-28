@@ -8,7 +8,7 @@ locals {
 #!/bin/bash
 sleep $[ ( $RANDOM % 10 )  + 1 ]s
 sudo -u admin crontab -r
-sudo su - magento -c "/opt/ec2_install/scripts/magento-setup.sh"
+sudo su - magento -c "/tmp/ec2_install/scripts/magento-setup.sh"
   EOF
 }
 
