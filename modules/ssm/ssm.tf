@@ -58,7 +58,7 @@ resource "aws_ssm_parameter" "magento_admin_username" {
 ############################
 
 resource "aws_ssm_parameter" "magento_crypt_key" {
-  name  = "/magento/${var.project}/magento_crypt_key"
+  name  = "${var.ssm_path_prefix}magento_crypt_key"
   type  = "SecureString"
   value = random_string.random_encryption_key.result
   tags = {
@@ -71,7 +71,7 @@ resource "aws_ssm_parameter" "magento_crypt_key" {
 ################
 
 resource "aws_ssm_parameter" "project_name" {
-  name  = "/magento/${var.project}/project_name"
+  name  = "${var.ssm_path_prefix}project_name"
   type  = "String"
   value = var.project
   tags = {
