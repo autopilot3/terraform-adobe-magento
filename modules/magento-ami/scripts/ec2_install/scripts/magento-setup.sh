@@ -5,13 +5,13 @@ REGION=$(curl --silent http://169.254.169.254/latest/dynamic/instance-identity/d
 export REGION
 
 PRIVATEIPFILE="/home/magento/privateip"
-curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .privateIp > $PRIVATEIPFILE
+curl --silent http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .privateIp >$PRIVATEIPFILE
 
 # Temporary file to store key - value data
 VARIABLE_TEMP_FILE="/tmp/discovered-vars"
 
 sudo chmod +x $BASEDIR/scripts/magento_vars.py
-/usr/bin/python3 $BASEDIR/scripts/magento_vars.py > ${VARIABLE_TEMP_FILE}
+/usr/bin/python3 $BASEDIR/scripts/magento_vars.py >${VARIABLE_TEMP_FILE}
 
 sudo cp -a $VARIABLE_TEMP_FILE /opt/
 
@@ -45,8 +45,7 @@ MAGENTO_BUCKET=$(echo $MAGENTO_FILES_S3 | cut -d. -f1)
 sudo sed -i "s/AWS_BUCKET/$MAGENTO_FILES_S3/g" /etc/nginx/conf.d/magento.conf
 sudo systemctl restart nginx
 
-if [ ! -d "/mnt/efs/magento" ]
-then
+if [ ! -d "/mnt/efs/magento" ]; then
     sudo mkdir -p /mnt/efs/magento
     sudo chown magento. /mnt/efs/magento
     sudo -u magento mkdir -p /mnt/efs/magento/pub
@@ -57,32 +56,27 @@ then
     sudo -u magento mv /var/www/html/magento/var /mnt/efs/magento/
 fi
 
-if [ ! -L "/var/www/html/magento/app/etc/env.php" ]
-then
+if [ ! -L "/var/www/html/magento/app/etc/env.php" ]; then
     cd /var/www/html/magento/app/etc || exit
     sudo -u magento ln -s /mnt/efs/magento/app/etc/env.php
 fi
 
-if [ ! -L "/var/www/html/magento/app/etc/config.php" ]
-then
+if [ ! -L "/var/www/html/magento/app/etc/config.php" ]; then
     cd /var/www/html/magento/app/etc || exit
     sudo -u magento ln -s /mnt/efs/magento/app/etc/config.php
 fi
 
-if [ ! -L "/var/www/html/magento/var" ]
-then
+if [ ! -L "/var/www/html/magento/var" ]; then
     cd /var/www/html/magento || exit
     rm -rf ./var/ && sudo -u magento ln -s /mnt/efs/magento/var
 fi
 
-if [ ! -L "/var/www/html/magento/pub/static" ]
-then
+if [ ! -L "/var/www/html/magento/pub/static" ]; then
     cd /var/www/html/magento/pub || exit
     rm -rf ./static/ && sudo -u magento ln -s /mnt/efs/magento/pub/static
 fi
 
-if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]
-then
+if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:install \
         --backend-frontname=admin \
         --db-host="${MAGENTO_DB_HOST}" \
@@ -124,7 +118,7 @@ then
         --cleanup-database | tee /tmp/magento.install.log
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set developer
-    sudo -u magento cp -a /opt/ec2_install/configs/auth.json /var/www/html/magento/
+    sudo -u magento cp -a /tmp/ec2_install/configs/auth.json /var/www/html/magento/
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento module:disable Magento_AdminNotification
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento sampledata:deploy
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:upgrade
@@ -152,12 +146,12 @@ then
 
     sudo cp /opt/ec2_install/scripts/sync.sh /home/magento/sync.sh
     sudo chown magento. /home/magento/sync.sh
-    sudo -u magento crontab -l > /tmp/tmpcron
+    sudo -u magento crontab -l >/tmp/tmpcron
     sudo -u magento echo "*/2 * * * * /bin/bash /home/magento/sync.sh" | sudo -u magento tee -a /tmp/tmpcron
     sudo -u magento crontab /tmp/tmpcron
 else
     sudo -u magento aws s3 cp s3://"${MAGENTO_BUCKET}"/sync/master.pub /home/magento/master.pub
-    sudo -u magento cat /home/magento/master.pub >> /home/magento/.ssh/authorized_keys
+    sudo -u magento cat /home/magento/master.pub >>/home/magento/.ssh/authorized_keys
     sudo chmod 600 /home/magento/.ssh/authorized_keys
     sudo chown magento. /home/magento/.ssh/authorized_keys
 fi

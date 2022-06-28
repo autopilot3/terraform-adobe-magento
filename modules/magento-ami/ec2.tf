@@ -5,15 +5,17 @@ resource "random_shuffle" "magento-ami-subnet" {
 
 
 resource "aws_ssm_parameter" "mage_composer_username" {
-  name  = "/${var.project}/mage_composer_username"
-  type  = "SecureString"
-  value = var.mage_composer_username
+  name      = "${var.ssm_path_prefix}mage_composer_username"
+  type      = "SecureString"
+  value     = var.mage_composer_username
+  overwrite = true
 }
 
 resource "aws_ssm_parameter" "mage_composer_password" {
-  name  = "/${var.project}/mage_composer_password"
-  type  = "SecureString"
-  value = var.mage_composer_password
+  name      = "${var.ssm_path_prefix}mage_composer_password"
+  type      = "SecureString"
+  value     = var.mage_composer_password
+  overwrite = true
 }
 
 locals {
@@ -44,8 +46,8 @@ resource "aws_instance" "magento_instance" {
 
   provisioner "remote-exec" {
     inline = [
-      "jq \".ssm_path_prefix=\\\"${var.ssm_path_prefix}\\\" </tmp/ec2_install/scripts/ssm.json  >/tmp/ec2_install/scripts/ssm.json",
-      "jq \".release=\\\"${var.mage_composer_release}\\\" </tmp/ec2_install/scripts/magento-composer-config.json  >/tmp/ec2_install/scripts/magento-composer-config.json",
+      "sed -i \"s|\\\"ssm_path_prefix\\\": \\\"/\\\"|\\\"ssm_path_prefix\\\": \\\"${var.ssm_path_prefix}\\\"|g\" /tmp/ec2_install/scripts/ssm.json",
+      "sed -i \"s|\\\"release\\\": \\\"magento/project-community-edition\\\"|\\\"release\\\": \\\"${var.mage_composer_release}\\\"|g\" /tmp/ec2_install/scripts/magento-composer-config.json",
       "chmod +x /tmp/ec2_install/scripts/*.sh",
       "/tmp/ec2_install/scripts/install_stack.sh",
     ]
@@ -56,7 +58,6 @@ resource "aws_instance" "magento_instance" {
       user        = var.ssh_username
       private_key = var.ssh_private_key
     }
-
   }
 
   tags = {
@@ -92,8 +93,8 @@ resource "null_resource" "destroy_any_running_amis" {
   provisioner "local-exec" {
     command = "${path.module}/scripts/local/cleanup-instances.sh"
     environment = {
-      AWS_REGION = var.region
+      AWS_REGION        = var.region
       INSTANCE_TAG_NAME = local.instance_tag_name
-     }
+    }
   }
 }

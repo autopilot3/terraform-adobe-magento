@@ -8,4 +8,4 @@ sudo mv "$BASEDIR"/configs/auth.json /home/magento/.config/composer/
 sudo chown -R magento. /home/magento/.config/
 cd /home/magento
 MAGENTO_RELEASE=$(jq -r ".release" <"$BASEDIR"/scripts/magento-composer-config.json)
-sudo -u magento composer create-project --repository-url=https://repo.magento.com/ "$MAGENTO_RELEASE" /var/www/html/magento -n
+sudo -u magento /usr/local/bin/composer create-project --repository-url=https://repo.magento.com/ "$MAGENTO_RELEASE" /var/www/html/magento -n
