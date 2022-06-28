@@ -36,6 +36,8 @@ resource "aws_launch_template" "magento_launch_template" {
 
   user_data = base64encode(local.magento_userdata)
 
+  update_default_version = true
+
   lifecycle {
     create_before_destroy = true
   }

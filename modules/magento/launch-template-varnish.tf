@@ -34,6 +34,8 @@ resource "aws_launch_template" "varnish_launch_template" {
     }
   }
 
+  update_default_version = true
+
   user_data = base64encode(local.varnish_userdata)
 
   lifecycle {
