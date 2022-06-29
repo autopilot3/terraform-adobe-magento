@@ -9,3 +9,5 @@ sudo yum install -y curl gnupg2 gnupg ca-certificates  \
 
 echo "cd /var/www/html/magento/" | sudo tee -a ~magento/.bashrc
 echo "cat /tmp/discovered-vars" | sudo tee -a ~magento/.bashrc
+
+echo "magento ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/90-magento-passwordless-sudo
