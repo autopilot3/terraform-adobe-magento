@@ -20,3 +20,5 @@ if [ $? -eq 0 ]; then
 fi
 
 echo "$(date -d "+1 hour" +"%M %H * * *") sudo shutdown -h" | crontab -
+
+sudo poweroff

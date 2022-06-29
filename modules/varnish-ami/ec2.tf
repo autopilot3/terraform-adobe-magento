@@ -57,8 +57,9 @@ resource "random_pet" "ami" {
 }
 
 resource "aws_ami_from_instance" "varnish_ami" {
-  name               = "varnish-ami-${random_pet.ami.id}"
-  source_instance_id = aws_instance.varnish_instance.id
+  name                    = "varnish-ami-${random_pet.ami.id}"
+  source_instance_id      = aws_instance.varnish_instance.id
+  snapshot_without_reboot = true
   depends_on = [
     aws_instance.varnish_instance
   ]

@@ -73,8 +73,9 @@ resource "random_pet" "ami" {
 }
 
 resource "aws_ami_from_instance" "magento_ami" {
-  name               = "magento-ami-${random_pet.ami.id}"
-  source_instance_id = aws_instance.magento_instance.id
+  name                    = "magento-ami-${random_pet.ami.id}"
+  source_instance_id      = aws_instance.magento_instance.id
+  snapshot_without_reboot = true # instance is powered off in the script
   depends_on = [
     aws_instance.magento_instance
   ]
