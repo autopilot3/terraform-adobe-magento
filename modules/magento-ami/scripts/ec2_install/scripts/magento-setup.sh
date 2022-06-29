@@ -116,33 +116,36 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
         --admin-password="${MAGENTO_ADMIN_PASS}" \
         --cleanup-database | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set developer
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set developer | tee /tmp/magento.install.log
     sudo -u magento cp -a /tmp/ec2_install/configs/auth.json /var/www/html/magento/
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento module:disable Magento_AdminNotification
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento sampledata:deploy
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:upgrade
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set production
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento module:disable Magento_AdminNotification | tee /tmp/magento.install.log
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento module:disable Magento_TwoFactorAuth | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:enable
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento sampledata:deploy | tee /tmp/magento.install.log
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:upgrade | tee /tmp/magento.install.log
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set production | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set web/secure/offloader_header X-Forwarded-Proto
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set trans_email/ident_general/email "${MAGENTO_ADMIN_EMAIL}"
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:enable | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set system/media_storage_configuration/media_database 0
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set web/secure/offloader_header X-Forwarded-Proto | tee /tmp/magento.install.log
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2 | tee /tmp/magento.install.log
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set trans_email/ident_general/email "${MAGENTO_ADMIN_EMAIL}" | tee /tmp/magento.install.log
+
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set system/media_storage_configuration/media_database 0 | tee /tmp/magento.install.log
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:config:set --remote-storage-driver="aws-s3" \
         --remote-storage-bucket="${MAGENTO_FILES_S3}" \
-        --remote-storage-region="${REGION}"
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento remote-storage:sync
+        --remote-storage-region="${REGION}" | tee /tmp/magento.install.log
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento remote-storage:sync | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:disable
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:disable | tee /tmp/magento.install.log
 
-    sudo aws s3 cp /home/magento/.ssh/id_rsa.pub s3://"${MAGENTO_BUCKET}"/sync/master.pub
-    sudo aws s3 cp $PRIVATEIPFILE s3://"${MAGENTO_BUCKET}"/sync/
+    sudo aws s3 cp /home/magento/.ssh/id_rsa.pub s3://"${MAGENTO_BUCKET}"/sync/master.pub | tee /tmp/magento.install.log
+    sudo aws s3 cp $PRIVATEIPFILE s3://"${MAGENTO_BUCKET}"/sync/ | tee /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cron:install
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cron:install | tee /tmp/magento.install.log
+
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cron:install | tee /tmp/magento.install.log
 
     sudo cp /tmp/ec2_install/scripts/sync.sh /home/magento/sync.sh
     sudo chown magento. /home/magento/sync.sh
@@ -151,14 +154,14 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
     sudo -u magento echo "*/2 * * * * /bin/bash /home/magento/sync.sh" | sudo -u magento tee -a /tmp/tmpcron
     sudo -u magento crontab /tmp/tmpcron
 else
-    sudo -u magento aws s3 cp s3://"${MAGENTO_BUCKET}"/sync/master.pub /home/magento/master.pub
+    sudo -u magento aws s3 cp s3://"${MAGENTO_BUCKET}"/sync/master.pub /home/magento/master.pub | tee /tmp/magento.install.log
     # shellcheck disable=SC2024
     sudo -u magento cat /home/magento/master.pub >>/home/magento/.ssh/authorized_keys
     sudo chmod 600 /home/magento/.ssh/authorized_keys
     sudo chown magento. /home/magento/.ssh/authorized_keys
 fi
 
-sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cache:flush
+sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento cache:flush | tee /tmp/magento.install.log
 
 echo flushall >/dev/tcp/"${MAGENTO_REDIS_CACHE_HOST}"/6379
 
