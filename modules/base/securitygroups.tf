@@ -148,6 +148,16 @@ resource "aws_security_group_rule" "ec2_magento_in_alb_magento_http" {
 
   source_security_group_id = aws_security_group.alb_magento.id
 }
+resource "aws_security_group_rule" "ec2_magento_in_alb_magento_ssh" {
+  security_group_id = aws_security_group.ec2_magento.id
+
+  type      = "ingress"
+  from_port = 22
+  to_port   = 22
+  protocol  = "TCP"
+
+  cidr_blocks = ["0.0.0.0/0"]
+}
 resource "aws_security_group_rule" "ec2_magento_out_world" {
   security_group_id = aws_security_group.ec2_magento.id
 
