@@ -57,9 +57,8 @@ resource "random_pet" "ami" {
 }
 
 resource "aws_ami_from_instance" "varnish_ami" {
-  name                    = "varnish-ami-${random_pet.ami.id}"
-  source_instance_id      = aws_instance.varnish_instance.id
-  snapshot_without_reboot = true
+  name               = "varnish-ami-${random_pet.ami.id}"
+  source_instance_id = aws_instance.varnish_instance.id
   depends_on = [
     aws_instance.varnish_instance
   ]
@@ -79,8 +78,8 @@ resource "null_resource" "destroy_any_running_amis" {
   provisioner "local-exec" {
     command = "${path.module}/scripts/local/cleanup-instances.sh"
     environment = {
-      AWS_REGION = var.region
+      AWS_REGION        = var.region
       INSTANCE_TAG_NAME = local.instance_tag_name
-     }
+    }
   }
 }

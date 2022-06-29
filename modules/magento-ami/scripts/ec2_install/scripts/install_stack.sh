@@ -35,5 +35,3 @@ sudo $BASEDIR/scripts/install_postfix.sh
 
 sudo $BASEDIR/scripts/install_efssetup.sh
 sudo su - magento -c "$BASEDIR/scripts/install_magento.sh $BASEDIR"
-
-echo "$(date -d "+1 hour" +"%M %H * * *") sudo shutdown -h" | crontab -

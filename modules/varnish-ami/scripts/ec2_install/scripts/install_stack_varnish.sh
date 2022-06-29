@@ -2,15 +2,14 @@
 BASEDIR=/tmp/ec2_install
 sudo cp -a $BASEDIR /opt/
 
-grep -i debian /etc/os-release
-if [ $? -eq 0 ]; then
+if grep -i debian /etc/os-release; then
   $BASEDIR/scripts/install_base_deb.sh
   $BASEDIR/scripts/install_nginx_deb.sh "$BASEDIR"
   $BASEDIR/scripts/install_varnish_deb.sh "$BASEDIR"
 fi
 
-grep -i amazon /etc/os-release
-if [ $? -eq 0 ]; then
+
+if grep -i amazon /etc/os-release; then
   echo "Wait for cloud-init to complete"
   sudo cloud-init status --wait
   echo "Cloud init completed"
@@ -18,7 +17,3 @@ if [ $? -eq 0 ]; then
   $BASEDIR/scripts/install_nginx_amzn.sh "$BASEDIR"
   $BASEDIR/scripts/install_varnish_amzn.sh "$BASEDIR"
 fi
-
-echo "$(date -d "+1 hour" +"%M %H * * *") sudo shutdown -h" | crontab -
-
-sudo poweroff
