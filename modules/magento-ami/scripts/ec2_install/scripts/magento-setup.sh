@@ -122,6 +122,7 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento sampledata:deploy
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:upgrade
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set production
+    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento module:disable Magento_TwoFactorAuth | tee /tmp/magento.install.log
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:enable
 
