@@ -41,6 +41,8 @@ MAGENTO_ADMIN_LASTNAME=$(grep 'magento_admin_lastname:' ${VARIABLE_TEMP_FILE} | 
 
 MAGENTO_BUCKET=$(echo "$MAGENTO_FILES_S3" | cut -d. -f1)
 
+sudo cp "$BASEDIR"/configs/php.ini /etc/php.ini
+
 sudo sed -i "s/AWS_BUCKET/$MAGENTO_FILES_S3/g" /etc/nginx/conf.d/magento.conf
 sudo systemctl restart nginx
 
@@ -115,6 +117,9 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
         --admin-user="${MAGENTO_ADMIN_USERNAME}" \
         --admin-password="${MAGENTO_ADMIN_PASS}" \
         --cleanup-database | tee /tmp/magento.install.log
+
+    sudo -u magento mkdir -p /var/www/html/magento/var/composer_home/
+    sudo cp /home/magento/.config/composer/auth.json /var/www/html/magento/var/composer_home/auth.json
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento deploy:mode:set developer | tee -a /tmp/magento.install.log
     sudo -u magento cp -a /tmp/ec2_install/configs/auth.json /var/www/html/magento/
