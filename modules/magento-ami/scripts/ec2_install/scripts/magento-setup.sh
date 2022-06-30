@@ -136,12 +136,12 @@ if [ ! -f "/mnt/efs/magento/app/etc/env.php" ]; then
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2 | tee -a /tmp/magento.install.log
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set trans_email/ident_general/email "${MAGENTO_ADMIN_EMAIL}" | tee -a /tmp/magento.install.log
 
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set system/media_storage_configuration/media_database 0 | tee -a /tmp/magento.install.log
-
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:config:set --remote-storage-driver="aws-s3" \
-        --remote-storage-bucket="${MAGENTO_FILES_S3}" \
-        --remote-storage-region="${REGION}" | tee -a /tmp/magento.install.log
-    sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento remote-storage:sync | tee -a /tmp/magento.install.log
+    # sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento config:set system/media_storage_configuration/media_database 0 | tee -a /tmp/magento.install.log
+    #
+    # sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento setup:config:set --remote-storage-driver="aws-s3" \
+    #     --remote-storage-bucket="${MAGENTO_FILES_S3}" \
+    #     --remote-storage-region="${REGION}" | tee -a /tmp/magento.install.log
+    # sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento remote-storage:sync | tee -a /tmp/magento.install.log
 
     sudo -u magento php -d memory_limit=-1 /var/www/html/magento/bin/magento maintenance:disable | tee -a /tmp/magento.install.log
 
