@@ -6,7 +6,7 @@ data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
 
 
-resource "random_shuffle" "elasticsearch_subnets" { 
+resource "random_shuffle" "elasticsearch_subnets" {
   input        = var.private_subnet_ids
   result_count = 1
 }

@@ -2,18 +2,18 @@
 # | ElastiCache (Redis)  |
 # ------------------------
 
-locals { 
+locals {
   # if the number in the cluster is less than the AZ count, return from random_shuffle. Otherwise the entire list.
-  azs_cache = var.redis_clusters_cache < length(var.azs) ? random_shuffle.redis_cache_azs.result : var.azs
+  azs_cache   = var.redis_clusters_cache < length(var.azs) ? random_shuffle.redis_cache_azs.result : var.azs
   azs_session = var.redis_clusters_session < length(var.azs) ? random_shuffle.redis_session_azs.result : var.azs
 
 }
 
-resource "random_shuffle" "redis_cache_azs" { 
+resource "random_shuffle" "redis_cache_azs" {
   input        = var.azs
   result_count = var.redis_clusters_cache
 }
-resource "random_shuffle" "redis_session_azs" { 
+resource "random_shuffle" "redis_session_azs" {
   input        = var.azs
   result_count = var.redis_clusters_session
 }

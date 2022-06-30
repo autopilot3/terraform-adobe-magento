@@ -1,5 +1,5 @@
 resource "aws_alb" "alb_magento" {
-  name     = "${var.project}-magento"
+  name            = "${var.project}-magento"
   internal        = true
   security_groups = [var.sg_alb_magento_id]
   subnets         = var.private_subnet_ids

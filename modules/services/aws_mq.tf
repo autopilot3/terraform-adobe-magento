@@ -4,7 +4,7 @@ resource "random_string" "mq_password" {
   upper   = true
 }
 
-resource "random_shuffle" "mq_subnet_ids" { 
+resource "random_shuffle" "mq_subnet_ids" {
   input        = var.private_subnet_ids
   result_count = 1
 }

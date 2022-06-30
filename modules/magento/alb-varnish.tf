@@ -1,5 +1,5 @@
 resource "aws_alb" "alb_varnish" {
-  name           = "${var.project}-varnish"
+  name            = "${var.project}-varnish"
   internal        = false
   security_groups = [var.sg_alb_varnish_id]
   subnets         = var.public_subnet_ids
